@@ -8,7 +8,6 @@ export const get_seller_payment_details = createAsyncThunk(
             const {data} = await api.get(`/payment/seller-payment-details/${sellerId} `,{withCredentials: true})  
             return fulfillWithValue(data)
         } catch (error) {
-            // console.log(error.response.data)
             return rejectWithValue(error.response.data)
         }
     }
