@@ -20,8 +20,8 @@ const ChatSeller = () => {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        dispatch(get_sellers())
-    })
+        dispatch(get_sellers());
+    });
 
     const send = (e) => {
         e.preventDefault() 
