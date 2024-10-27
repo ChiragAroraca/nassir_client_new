@@ -11,7 +11,6 @@ import { seller_login,messageClear } from '../../store/Reducers/authReducer';
 const Login = () => {
 
     const navigate = useNavigate()
-
     const dispatch = useDispatch()
     const {loader,errorMessage,successMessage} = useSelector(state=>state.auth)
 
