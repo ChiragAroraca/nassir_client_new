@@ -29,7 +29,6 @@ export const seller_login = createAsyncThunk(
             localStorage.setItem('accessToken',data.token) 
             return fulfillWithValue(data)
         } catch (error) {
-            // console.log(error.response.data)
             return rejectWithValue(error.response.data)
         }
     }

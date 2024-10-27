@@ -1,149 +1,171 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { IoMdImages, IoMdCloseCircle } from "react-icons/io";
-import { useDispatch, useSelector } from 'react-redux';
-import { get_category } from '../../store/Reducers/categoryReducer';
-import { add_product, messageClear } from '../../store/Reducers/productReducer';
-import { PropagateLoader } from 'react-spinners';
-import { overrideStyle } from '../../utils/utils';
-import toast from 'react-hot-toast';
+import { useDispatch, useSelector } from "react-redux";
+import { get_category } from "../../store/Reducers/categoryReducer";
+import { add_product, messageClear } from "../../store/Reducers/productReducer";
+import { PropagateLoader } from "react-spinners";
+import { overrideStyle } from "../../utils/utils";
+import toast from "react-hot-toast";
 
 const AddProduct = () => {
-    const dispatch = useDispatch();
-    const { categorys } = useSelector(state => state.category);
-    const { loader, successMessage, errorMessage } = useSelector(state => state.product);
+  const dispatch = useDispatch();
+  const { categorys } = useSelector((state) => state.category);
+  const { loader, successMessage, errorMessage } = useSelector(
+    (state) => state.product
+  );
 
-    useEffect(() => {
-        dispatch(get_category({
-            searchValue: '',
-            parPage: '',
-            page: ""
-        }));
-    }, []);
+  useEffect(() => {
+    dispatch(
+      get_category({
+        searchValue: "",
+        parPage: "",
+        page: "",
+      })
+    );
+  }, []);
 
-    const [state, setState] = useState({
+  const [state, setState] = useState({
+    name: "",
+    description: "",
+    discount: "",
+    price: "",
+    brand: "",
+    stock: "",
+  });
+
+  const inputHandle = (e) => {
+    setState({
+      ...state,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const [cateShow, setCateShow] = useState(false);
+  const [category, setCategory] = useState("");
+  const [allCategory, setAllCategory] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
+
+  const categorySearch = (e) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    if (value) {
+      let srcValue = allCategory.filter(
+        (c) => c.name.toLowerCase().indexOf(value.toLowerCase()) > -1
+      );
+      setAllCategory(srcValue);
+    } else {
+      setAllCategory(categorys);
+    }
+  };
+
+  const [images, setImages] = useState([]);
+  const [imageShow, setImageShow] = useState([]);
+
+  const imageHandle = (e) => {
+    const files = e.target.files;
+    const length = files.length;
+    if (length > 0) {
+      setImages([...images, ...files]);
+      let imageUrl = [];
+      for (let i = 0; i < length; i++) {
+        imageUrl.push({ url: URL.createObjectURL(files[i]) });
+      }
+      setImageShow([...imageShow, ...imageUrl]);
+    }
+  };
+
+  const [pdfType, setPdfType] = useState("downloadable");
+  const [downloadablePdf, setDownloadablePdf] = useState(null);
+  const [editablePdfFiles, setEditablePdfFiles] = useState([]);
+
+  const handlePdfTypeChange = (e) => {
+    setPdfType(e.target.value);
+    setDownloadablePdf(null);
+    setEditablePdfFiles([]);
+  };
+
+  const handleDownloadablePdf = (e) => {
+    const file = e.target.files[0];
+    setDownloadablePdf(file);
+  };
+
+  const handleEditablePdfFiles = (e) => {
+    const files = Array.from(e.target.files);
+    setEditablePdfFiles([...editablePdfFiles, ...files]);
+  };
+
+  useEffect(() => {
+    if (successMessage) {
+      toast.success(successMessage);
+      dispatch(messageClear());
+      setState({
         name: "",
-        description: '',
-        discount: '',
+        description: "",
+        discount: "",
         price: "",
         brand: "",
-        stock: ""
-    });
+        stock: "",
+      });
+      setImageShow([]);
+      setImages([]);
+      setDownloadablePdf(null);
+      setEditablePdfFiles([]);
+      setCategory("");
+    }
+    if (errorMessage) {
+      toast.error(errorMessage);
+      dispatch(messageClear());
+    }
+  }, [successMessage, errorMessage]);
 
-    const inputHandle = (e) => {
-        setState({
-            ...state,
-            [e.target.name]: e.target.value
-        });
-    };
+  const changeImage = (img, index) => {
+    if (img) {
+      let tempUrl = imageShow;
+      let tempImages = images;
 
-    const [cateShow, setCateShow] = useState(false);
-    const [category, setCategory] = useState('');
-    const [allCategory, setAllCategory] = useState([]);
-    const [searchValue, setSearchValue] = useState('');
+      tempImages[index] = img;
+      tempUrl[index] = { url: URL.createObjectURL(img) };
+      setImageShow([...tempUrl]);
+      setImages([...tempImages]);
+    }
+  };
 
-    const categorySearch = (e) => {
-        const value = e.target.value;
-        setSearchValue(value);
-        if (value) {
-            let srcValue = allCategory.filter(c => c.name.toLowerCase().indexOf(value.toLowerCase()) > -1);
-            setAllCategory(srcValue);
-        } else {
-            setAllCategory(categorys);
-        }
-    };
+  const removeImage = (i) => {
+    const filterImage = images.filter((img, index) => index !== i);
+    const filterImageUrl = imageShow.filter((img, index) => index !== i);
 
-    const [images, setImages] = useState([]);
-    const [imageShow, setImageShow] = useState([]);
+    setImages(filterImage);
+    setImageShow(filterImageUrl);
+  };
 
-    const imageHandle = (e) => {
-        const files = e.target.files;
-        const length = files.length;
-        if (length > 0) {
-            setImages([...images, ...files]);
-            let imageUrl = [];
-            for (let i = 0; i < length; i++) {
-                imageUrl.push({ url: URL.createObjectURL(files[i]) });
-            }
-            setImageShow([...imageShow, ...imageUrl]);
-        }
-    };
+  const add = (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("name", state.name);
+    formData.append("description", state.description);
+    formData.append("price", state.price);
+    formData.append("stock", state.stock);
+    formData.append("discount", state.discount);
+    formData.append("brand", state.brand);
+    formData.append("shopName", "EasyShop");
+    formData.append("category", category);
+    for (let i = 0; i < images.length; i++) {
+      formData.append("images", images[i]);
+    }
+    if (pdfType === "downloadable" && downloadablePdf) {
+      formData.append("downloadablePDF", downloadablePdf);
+    } else if (pdfType === "editable") {
+      editablePdfFiles.forEach((file) => {
+        formData.append("editablePDF", file); 
+      });
+    }
+    dispatch(add_product(formData));
+  };
 
-    const [pdfFiles, setPdfFiles] = useState([]); // State for PDF files
-
-    const pdfHandle = (e) => {
-        const files = e.target.files;
-        if (files.length > 0) {
-            setPdfFiles([...pdfFiles, ...files]);
-        }
-    };
-
-    useEffect(() => {
-        if (successMessage) {
-            toast.success(successMessage);
-            dispatch(messageClear());
-            setState({
-                name: "",
-                description: '',
-                discount: '',
-                price: "",
-                brand: "",
-                stock: ""
-            });
-            setImageShow([]);
-            setImages([]);
-            setPdfFiles([]);
-            setCategory('');
-        }
-        if (errorMessage) {
-            toast.error(errorMessage);
-            dispatch(messageClear());
-        }
-    }, [successMessage, errorMessage]);
-
-    const changeImage = (img, index) => {
-        if (img) {
-            let tempUrl = imageShow;
-            let tempImages = images;
-
-            tempImages[index] = img;
-            tempUrl[index] = { url: URL.createObjectURL(img) };
-            setImageShow([...tempUrl]);
-            setImages([...tempImages]);
-        }
-    };
-
-    const removeImage = (i) => {
-        const filterImage = images.filter((img, index) => index !== i);
-        const filterImageUrl = imageShow.filter((img, index) => index !== i);
-
-        setImages(filterImage);
-        setImageShow(filterImageUrl);
-    };
-
-    const add = (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('name', state.name);
-        formData.append('description', state.description);
-        formData.append('price', state.price);
-        formData.append('stock', state.stock);
-        formData.append('discount', state.discount);
-        formData.append('brand', state.brand);
-        formData.append('shopName', 'EasyShop');
-        formData.append('category', category);
-        for (let i = 0; i < images.length; i++) {
-            formData.append('images', images[i]);
-        }
-        for (let i = 0; i < pdfFiles.length; i++) {
-            formData.append('pdf', pdfFiles[i]); // Append PDF files
-        }
-        dispatch(add_product(formData));
-    };
-
-    useEffect(() => {
-        setAllCategory(categorys);
-    }, [categorys]);
+  useEffect(() => {
+    setAllCategory(categorys);
+  }, [categorys]);
 
   return (
     <div className="px-2 lg:px-7 pt-5">
@@ -294,11 +316,60 @@ const AddProduct = () => {
               ></textarea>
             </div>
 
-            <div className='flex flex-col w-full gap-1 mb-4'>
-                <label htmlFor="pdfUpload" className='text-[#d0d2d6]'>Upload PDF (Optional)</label>
-                <input onChange={pdfHandle} type="file" id='pdfUpload' accept=".pdf" multiple className='px-4 py-2 bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' />
-            </div>
+            <div className="flex flex-col w-full gap-1 mb-4">
+              <label className="text-[#d0d2d6]">PDF Type (Optional)</label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    value="downloadable"
+                    checked={pdfType === "downloadable"}
+                    onChange={handlePdfTypeChange}
+                  />
+                  Downloadable PDF (Single)
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    value="editable"
+                    checked={pdfType === "editable"}
+                    onChange={handlePdfTypeChange}
+                  />
+                  Editable PDF (Multiple)
+                </label>
+              </div>
 
+              {pdfType === "downloadable" && (
+                <div className="flex flex-col w-full gap-1 mt-3">
+                  <label htmlFor="downloadablePdf" className="text-[#d0d2d6]">
+                    Upload Downloadable PDF
+                  </label>
+                  <input
+                    onChange={handleDownloadablePdf}
+                    type="file"
+                    id="downloadablePdf"
+                    accept=".pdf"
+                    className="px-4 py-2 bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]"
+                  />
+                </div>
+              )}
+
+              {pdfType === "editable" && (
+                <div className="flex flex-col w-full gap-1 mt-3">
+                  <label htmlFor="editablePdf" className="text-[#d0d2d6]">
+                    Upload Editable PDF(s)
+                  </label>
+                  <input
+                    onChange={handleEditablePdfFiles}
+                    type="file"
+                    id="editablePdf"
+                    accept=".pdf"
+                    multiple
+                    className="px-4 py-2 bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]"
+                  />
+                </div>
+              )}
+            </div>
             <div className="grid lg:grid-cols-4 grid-cols-1 md:grid-cols-3 sm:grid-cols-2 sm:gap-4 md:gap-4 gap-3 w-full text-[#d0d2d6] mb-4">
               {imageShow.map((img, i) => (
                 <div className="h-[180px] relative" key={i}>
