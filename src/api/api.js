@@ -1,11 +1,10 @@
 import axios from "axios";
 
-let url = "https://mlsserver-10ed9240e649.herokuapp.com";
-
-console.log("url >><< 123", url)
+const url = process.env.REACT_APP_SERVER_URL || "http://localhost:5000";
 
 const api = axios.create({
-    baseURL : `${url}/api`
-})
+    baseURL: `${url}/api`,
+    withCredentials: true 
+});
 
-export default api
+export default api;

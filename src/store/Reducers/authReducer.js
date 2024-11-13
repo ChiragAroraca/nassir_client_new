@@ -152,11 +152,9 @@ export const authReducer = createSlice({
         token: localStorage.getItem('accessToken')
     },
     reducers : {
-
         messageClear : (state,_) => {
             state.errorMessage = ""
         }
-
     },
     extraReducers: (builder) => {
         builder
