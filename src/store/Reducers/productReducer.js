@@ -1,11 +1,11 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../api/api";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import api from '../../api/api';
 
 export const add_product = createAsyncThunk(
-  "product/add_product",
+  'product/add_product',
   async (product, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post("/product-add", product, {
+      const { data } = await api.post('/product-add', product, {
         withCredentials: true,
       });
       return fulfillWithValue(data);
@@ -18,7 +18,7 @@ export const add_product = createAsyncThunk(
 // End Method
 
 export const get_products = createAsyncThunk(
-  "product/get_products",
+  'product/get_products',
   async (
     { parPage, page, searchValue },
     { rejectWithValue, fulfillWithValue }
@@ -38,7 +38,7 @@ export const get_products = createAsyncThunk(
 // End Method
 
 export const get_product = createAsyncThunk(
-  "product/get_product",
+  'product/get_product',
   async (productId, { rejectWithValue, fulfillWithValue }) => {
     try {
       const { data } = await api.get(`/product-get/${productId}`, {
@@ -56,10 +56,10 @@ export const get_product = createAsyncThunk(
 // End Method
 
 export const update_product = createAsyncThunk(
-  "product/update_product",
+  'product/update_product',
   async (product, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post("/product-update", product, {
+      const { data } = await api.post('/product-update', product, {
         withCredentials: true,
       });
       console.log(data);
@@ -74,17 +74,17 @@ export const update_product = createAsyncThunk(
 // End Method
 
 export const product_image_update = createAsyncThunk(
-  "product/product_image_update",
+  'product/product_image_update',
   async (
     { oldImage, newImage, productId },
     { rejectWithValue, fulfillWithValue }
   ) => {
     try {
       const formData = new FormData();
-      formData.append("oldImage", oldImage);
-      formData.append("newImage", newImage);
-      formData.append("productId", productId);
-      const { data } = await api.post("/product-image-update", formData, {
+      formData.append('oldImage', oldImage);
+      formData.append('newImage', newImage);
+      formData.append('productId', productId);
+      const { data } = await api.post('/product-image-update', formData, {
         withCredentials: true,
       });
       console.log(data);
@@ -99,18 +99,18 @@ export const product_image_update = createAsyncThunk(
 // End Method
 
 export const productReducer = createSlice({
-  name: "product",
+  name: 'product',
   initialState: {
-    successMessage: "",
-    errorMessage: "",
+    successMessage: '',
+    errorMessage: '',
     loader: false,
     products: [],
-    product: "",
+    product: '',
     totalProduct: 0,
   },
   reducers: {
     messageClear: (state, _) => {
-      state.errorMessage = "";
+      state.errorMessage = '';
     },
   },
   extraReducers: (builder) => {

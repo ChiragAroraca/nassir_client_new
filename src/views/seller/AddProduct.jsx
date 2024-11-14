@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { IoMdImages, IoMdCloseCircle } from "react-icons/io";
-import { useDispatch, useSelector } from "react-redux";
-import { get_category } from "../../store/Reducers/categoryReducer";
-import { add_product, messageClear } from "../../store/Reducers/productReducer";
-import { PropagateLoader } from "react-spinners";
-import { overrideStyle } from "../../utils/utils";
-import toast from "react-hot-toast";
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { IoMdImages, IoMdCloseCircle } from 'react-icons/io';
+import { useDispatch, useSelector } from 'react-redux';
+import { get_category } from '../../store/Reducers/categoryReducer';
+import { add_product, messageClear } from '../../store/Reducers/productReducer';
+import { PropagateLoader } from 'react-spinners';
+import { overrideStyle } from '../../utils/utils';
+import toast from 'react-hot-toast';
 
 const AddProduct = () => {
   const dispatch = useDispatch();
@@ -18,20 +18,20 @@ const AddProduct = () => {
   useEffect(() => {
     dispatch(
       get_category({
-        searchValue: "",
-        parPage: "",
-        page: "",
+        searchValue: '',
+        parPage: '',
+        page: '',
       })
     );
   }, []);
 
   const [state, setState] = useState({
-    name: "",
-    description: "",
-    discount: "",
-    price: "",
-    brand: "",
-    stock: "",
+    name: '',
+    description: '',
+    discount: '',
+    price: '',
+    brand: '',
+    stock: '',
   });
 
   const inputHandle = (e) => {
@@ -42,9 +42,9 @@ const AddProduct = () => {
   };
 
   const [cateShow, setCateShow] = useState(false);
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState('');
   const [allCategory, setAllCategory] = useState([]);
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
 
   const categorySearch = (e) => {
     const value = e.target.value;
@@ -75,7 +75,7 @@ const AddProduct = () => {
     }
   };
 
-  const [pdfType, setPdfType] = useState("downloadable");
+  const [pdfType, setPdfType] = useState('downloadable');
   const [downloadablePdf, setDownloadablePdf] = useState(null);
   const [editablePdfFiles, setEditablePdfFiles] = useState([]);
 
@@ -100,18 +100,18 @@ const AddProduct = () => {
       toast.success(successMessage);
       dispatch(messageClear());
       setState({
-        name: "",
-        description: "",
-        discount: "",
-        price: "",
-        brand: "",
-        stock: "",
+        name: '',
+        description: '',
+        discount: '',
+        price: '',
+        brand: '',
+        stock: '',
       });
       setImageShow([]);
       setImages([]);
       setDownloadablePdf(null);
       setEditablePdfFiles([]);
-      setCategory("");
+      setCategory('');
     }
     if (errorMessage) {
       toast.error(errorMessage);
@@ -142,22 +142,22 @@ const AddProduct = () => {
   const add = (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("name", state.name);
-    formData.append("description", state.description);
-    formData.append("price", state.price);
-    formData.append("stock", state.stock);
-    formData.append("discount", state.discount);
-    formData.append("brand", state.brand);
-    formData.append("shopName", "EasyShop");
-    formData.append("category", category);
+    formData.append('name', state.name);
+    formData.append('description', state.description);
+    formData.append('price', state.price);
+    formData.append('stock', state.stock);
+    formData.append('discount', state.discount);
+    formData.append('brand', state.brand);
+    formData.append('shopName', 'EasyShop');
+    formData.append('category', category);
     for (let i = 0; i < images.length; i++) {
-      formData.append("images", images[i]);
+      formData.append('images', images[i]);
     }
-    if (pdfType === "downloadable" && downloadablePdf) {
-      formData.append("downloadablePDF", downloadablePdf);
-    } else if (pdfType === "editable") {
+    if (pdfType === 'downloadable' && downloadablePdf) {
+      formData.append('downloadablePDF', downloadablePdf);
+    } else if (pdfType === 'editable') {
       editablePdfFiles.forEach((file) => {
-        formData.append("editablePDF", file); 
+        formData.append('editablePDF', file);
       });
     }
     dispatch(add_product(formData));
@@ -225,7 +225,7 @@ const AddProduct = () => {
 
                 <div
                   className={`absolute top-[101%] bg-[#475569] w-full transition-all ${
-                    cateShow ? "scale-100" : "scale-0"
+                    cateShow ? 'scale-100' : 'scale-0'
                   } `}
                 >
                   <div className="w-full px-4 py-2 fixed">
@@ -242,16 +242,16 @@ const AddProduct = () => {
                     {allCategory.map((c, i) => (
                       <span
                         className={`px-4 py-2 hover:bg-indigo-500 hover:text-white hover:shadow-lg w-full cursor-pointer ${
-                          category === c.name && "bg-indigo-500"
+                          category === c.name && 'bg-indigo-500'
                         }`}
                         onClick={() => {
                           setCateShow(false);
                           setCategory(c.name);
-                          setSearchValue("");
+                          setSearchValue('');
                           setAllCategory(categorys);
                         }}
                       >
-                        {c.name}{" "}
+                        {c.name}{' '}
                       </span>
                     ))}
                   </div>
@@ -323,7 +323,7 @@ const AddProduct = () => {
                   <input
                     type="radio"
                     value="downloadable"
-                    checked={pdfType === "downloadable"}
+                    checked={pdfType === 'downloadable'}
                     onChange={handlePdfTypeChange}
                   />
                   Downloadable PDF (Single)
@@ -332,14 +332,14 @@ const AddProduct = () => {
                   <input
                     type="radio"
                     value="editable"
-                    checked={pdfType === "editable"}
+                    checked={pdfType === 'editable'}
                     onChange={handlePdfTypeChange}
                   />
                   Editable PDF (Multiple)
                 </label>
               </div>
 
-              {pdfType === "downloadable" && (
+              {pdfType === 'downloadable' && (
                 <div className="flex flex-col w-full gap-1 mt-3">
                   <label htmlFor="downloadablePdf" className="text-[#d0d2d6]">
                     Upload Downloadable PDF
@@ -354,7 +354,7 @@ const AddProduct = () => {
                 </div>
               )}
 
-              {pdfType === "editable" && (
+              {pdfType === 'editable' && (
                 <div className="flex flex-col w-full gap-1 mt-3">
                   <label htmlFor="editablePdf" className="text-[#d0d2d6]">
                     Upload Editable PDF(s)
@@ -419,7 +419,7 @@ const AddProduct = () => {
                 {loader ? (
                   <PropagateLoader color="#fff" cssOverride={overrideStyle} />
                 ) : (
-                  "Add Product"
+                  'Add Product'
                 )}
               </button>
             </div>
