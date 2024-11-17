@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+import Uploads from '../../views/seller/Uploads';
 
 const SellerDashboard = lazy(
   () => import('../../views/seller/SellerDashboard')
@@ -65,6 +66,12 @@ export const sellerRoutes = [
   {
     path: '/seller/dashboard/orders',
     element: <Orders />,
+    role: 'seller',
+    visibility: ['active', 'deactive'],
+  },
+  {
+    path: '/seller/dashboard/uploads',
+    element: <Uploads />,
     role: 'seller',
     visibility: ['active', 'deactive'],
   },
