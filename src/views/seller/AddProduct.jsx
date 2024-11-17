@@ -357,7 +357,7 @@ const AddProduct = () => {
               {pdfType === 'editable' && (
                 <div className="flex flex-col w-full gap-1 mt-3">
                   <label htmlFor="editablePdf" className="text-[#d0d2d6]">
-                    Upload Editable PDF(s)
+                    Upload Editable PDF's
                   </label>
                   <input
                     onChange={handleEditablePdfFiles}
