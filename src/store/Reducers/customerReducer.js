@@ -30,6 +30,23 @@ export const get_seller_customer = createAsyncThunk(
   }
 );
 
+export const update_customer_status = createAsyncThunk(
+    "customers/update_customer_status",
+    async ({ customerId, updatedData }, { rejectWithValue, fulfillWithValue }) => {
+      try {
+        const { data } = await api.put(
+          `/seller/customers/${customerId}`,
+          updatedData,
+          { withCredentials: true }
+        );
+        return fulfillWithValue(data); 
+      } catch (error) {
+        return rejectWithValue(error.response?.data || error.message); // Handle errors
+      }
+    }
+  );
+  
+
 // Customer Reducer
 export const CustomerReducer = createSlice({
   name: "customer",
@@ -72,6 +89,25 @@ export const CustomerReducer = createSlice({
       .addCase(get_seller_customer.rejected, (state, { payload }) => {
         state.loading = false;
         state.errorMessage = payload.message || "Failed to fetch customer details";
+      })
+      .addCase(update_customer_status.pending, (state) => {
+        state.loading = true;
+        state.successMessage = "";
+        state.errorMessage = "";
+      })
+      .addCase(update_customer_status.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.successMessage = "Customer status updated successfully";
+        const index = state.myCustomers.findIndex(
+          (customer) => customer._id === payload.customer._id
+        );
+        if (index !== -1) {
+          state.myCustomers[index] = payload.customer;
+        }
+      })
+      .addCase(update_customer_status.rejected, (state, { payload }) => {
+        state.loading = false;
+        state.errorMessage = payload || "Failed to update customer status";
       });
   },
 });
