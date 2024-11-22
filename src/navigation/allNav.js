@@ -7,7 +7,7 @@ import { IoIosChatbubbles } from 'react-icons/io';
 import { IoMdAdd } from 'react-icons/io';
 import { MdViewList } from 'react-icons/md';
 import { TbBasketDiscount} from 'react-icons/tb';
-import { BsCartCheck, BsUpload } from 'react-icons/bs';
+import { BsCartCheck, BsSaveFill, BsUpload } from 'react-icons/bs';
 import { IoChatbubbles } from 'react-icons/io5';
 import { BsFillChatQuoteFill } from 'react-icons/bs';
 import { CgProfile } from 'react-icons/cg';
@@ -138,5 +138,12 @@ export const allNav = [
     icon: <CgProfile />,
     role: 'seller',
     path: '/seller/dashboard/profile',
+  },
+  {
+    id: 18,
+    title: 'Transaction-Manager',
+    icon: <BsSaveFill />,
+    role: 'seller',
+    path: '/seller/dashboard/transaction-manager',
   },
 ];
