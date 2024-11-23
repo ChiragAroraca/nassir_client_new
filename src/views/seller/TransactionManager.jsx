@@ -47,7 +47,7 @@ const TransactionManager = () => {
         customerId,
         updatedData: { documentName, status },
       })
-    );
+    ); 
   };
 
   if (loading) {
