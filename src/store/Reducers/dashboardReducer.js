@@ -31,6 +31,37 @@ export const get_seller_dashboard_data = createAsyncThunk(
 );
 // End method
 
+export const syncRetailerData = createAsyncThunk(
+  'dashboard/sync_retailer_data',
+  async (_, { rejectWithValue, fulfillWithValue }) => {
+    try {
+      // POST request to /seller/sync-retailer
+      const { data } = await api.get('/seller/sync-retailer', {
+        withCredentials: true,
+      });
+      return fulfillWithValue(data);
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const syncVendorsData = createAsyncThunk(
+  'dashboard/sync_vendor_data',
+  async (_, { rejectWithValue, fulfillWithValue }) => {
+    try {
+      // POST request to /seller/sync-retailer
+      const { data } = await api.get('/seller/sync-vendor', {
+        withCredentials: true,
+      });
+      return fulfillWithValue(data);
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+
 export const dashboardReducer = createSlice({
   name: 'dashboard',
   initialState: {
