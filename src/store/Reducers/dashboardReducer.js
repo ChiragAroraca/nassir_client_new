@@ -35,7 +35,6 @@ export const syncRetailerData = createAsyncThunk(
   'dashboard/sync_retailer_data',
   async (_, { rejectWithValue, fulfillWithValue }) => {
     try {
-      // POST request to /seller/sync-retailer
       const { data } = await api.get('/seller/sync-retailer', {
         withCredentials: true,
       });
