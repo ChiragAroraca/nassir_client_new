@@ -152,7 +152,7 @@ const SellerDashboard = () => {
           onClick={syncVendorData}
           className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md"
         >
-          Sync Retailer
+          Sync Vendor
         </button>
 
         {/* New Retail Sync Button */}
