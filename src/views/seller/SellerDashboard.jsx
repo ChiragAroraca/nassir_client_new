@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   get_seller_dashboard_data,
+  syncProductsData,
   syncRetailerData,    // <-- Make sure this is correctly exported from your slice
   syncVendorsData,     // <-- Already in your code
 } from '../../store/Reducers/dashboardReducer';
@@ -34,7 +35,7 @@ const SellerDashboard = () => {
     dispatch(syncVendorsData())
       .unwrap()
       .then(() => {
-        alert('Data will be synced successfully in 5 minutes');
+        alert('Sync will be completed');
       })
       .catch((error) => {
         console.error('Error syncing data:', error);
@@ -47,7 +48,19 @@ const SellerDashboard = () => {
     dispatch(syncRetailerData())
       .unwrap()
       .then(() => {
-        alert('Retail sync started. Data will be synced successfully in 5 minutes');
+        alert('All shops will be processed. Check after 10 minutes');
+      })
+      .catch((error) => {
+        console.error('Error syncing retail data:', error);
+        alert('Failed to sync retail data');
+      });
+  };
+
+  const handleProductSync = () => {
+    dispatch(syncProductsData())
+      .unwrap()
+      .then(() => {
+        alert('All shops will be processed. Check after 10 minutes');
       })
       .catch((error) => {
         console.error('Error syncing retail data:', error);
@@ -147,7 +160,6 @@ const SellerDashboard = () => {
     <div className="px-2 md:px-7 py-5">
       {/* Sync Buttons */}
       <div className="mb-4 flex gap-2">
-        {/* Existing Sync Retailer Button */}
         <button
           onClick={syncVendorData}
           className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md"
@@ -155,12 +167,18 @@ const SellerDashboard = () => {
           Sync Vendor
         </button>
 
-        {/* New Retail Sync Button */}
         <button
           onClick={handleRetailSync}
           className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-md"
         >
-          Retail Sync
+          Sync Retailer
+        </button>
+
+        <button
+          onClick={handleProductSync}
+          className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-md"
+        >
+          Sync Products
         </button>
       </div>
 

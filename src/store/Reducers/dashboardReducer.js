@@ -45,6 +45,20 @@ export const syncRetailerData = createAsyncThunk(
   }
 );
 
+export const syncProductsData = createAsyncThunk(
+  'dashboard/sync_products_data',
+  async (_, { rejectWithValue, fulfillWithValue }) => {
+    try {
+      const { data } = await api.get('/seller/sync-products', {
+        withCredentials: true,
+      });
+      return fulfillWithValue(data);
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 export const syncVendorsData = createAsyncThunk(
   'dashboard/sync_vendor_data',
   async (_, { rejectWithValue, fulfillWithValue }) => {
