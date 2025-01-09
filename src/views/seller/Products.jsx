@@ -5,7 +5,6 @@ import Pagination from '../Pagination';
 import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { get_products } from '../../store/Reducers/productReducer';
-import { LuImageMinus } from 'react-icons/lu';
 
 const Products = () => {
   const dispatch = useDispatch();
@@ -13,7 +12,7 @@ const Products = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchValue, setSearchValue] = useState('');
-  const [parPage, setParPage] = useState(5);
+  const [parPage, setParPage] = useState(50);
 
   useEffect(() => {
     const obj = {
@@ -26,9 +25,7 @@ const Products = () => {
 
   return (
     <div className="px-2 lg:px-7 pt-5">
-      <h1 className="text-[#000000] font-semibold text-lg mb-3">
-        All Products
-      </h1>
+      <h1 className="text-[#000000] font-semibold text-lg mb-3">All Products</h1>
 
       <div className="w-full p-4 bg-[#6a5fdf] rounded-md">
         <Search
@@ -41,125 +38,83 @@ const Products = () => {
           <table className="w-full text-sm text-left text-[#d0d2d6]">
             <thead className="text-sm text-[#d0d2d6] uppercase border-b border-slate-700">
               <tr>
-                <th scope="col" className="py-3 px-4">
-                  No
-                </th>
-                <th scope="col" className="py-3 px-4">
-                  Image
-                </th>
-                <th scope="col" className="py-3 px-4">
-                  Name
-                </th>
-                <th scope="col" className="py-3 px-4">
-                  Category
-                </th>
-                <th scope="col" className="py-3 px-4">
-                  Brand
-                </th>
-                <th scope="col" className="py-3 px-4">
-                  Price
-                </th>
-                <th scope="col" className="py-3 px-4">
-                  Discount
-                </th>
-                <th scope="col" className="py-3 px-4">
-                  Stock
-                </th>
-                <th scope="col" className="py-3 px-4">
-                  Action
-                </th>
+                <th scope="col" className="py-3 px-4">ID</th>
+                <th scope="col" className="py-3 px-4">Vendor Product</th>
+                <th scope="col" className="py-3 px-4">Retailer Product</th>
+                <th scope="col" className="py-3 px-4">Similarity Score</th>
+                <th scope="col" className="py-3 px-4">Published Shops</th>
+                <th scope="col" className="py-3 px-4">Action</th>
               </tr>
             </thead>
 
             <tbody>
               {products.map((d, i) => (
                 <tr key={i}>
-                  <td
-                    scope="row"
-                    className="py-1 px-4 font-medium whitespace-nowrap"
-                  >
-                    {i + 1}
+                  <td className="py-1 px-4 font-medium whitespace-nowrap">{d._id}</td>
+
+                  {/* Vendor Product */}
+                  <td className="py-1 px-4 font-medium whitespace-nowrap">
+                    <div>
+                      <p><strong>ID:</strong> {d.vendorProduct._id}</p>
+                      <p><strong>Title:</strong> {d.vendorProduct.title}</p>
+                      <p><strong>Vendor:</strong> {d.vendorProduct.vendor}</p>
+                      <p><strong>Price:</strong> ${d.vendorProduct.variants[0]?.price}</p>
+                      <img
+                        className="w-[80px] h-[80px] mt-2"
+                        src={d.vendorProduct.images[0]?.src}
+                        alt="Vendor"
+                      />
+                    </div>
                   </td>
-                  <td
-                    scope="row"
-                    className="py-1 px-4 font-medium whitespace-nowrap"
-                  >
-                    <img
-                      className="w-[45px] h-[45px]"
-                      src={d.images[0]}
-                      alt=""
-                    />
-                  </td>
-                  <td
-                    scope="row"
-                    className="py-1 px-4 font-medium whitespace-nowrap"
-                  >
-                    {d?.name?.slice(0, 15)}...
-                  </td>
-                  <td
-                    scope="row"
-                    className="py-1 px-4 font-medium whitespace-nowrap"
-                  >
-                    {d.category}
-                  </td>
-                  <td
-                    scope="row"
-                    className="py-1 px-4 font-medium whitespace-nowrap"
-                  >
-                    {d.brand}{' '}
-                  </td>
-                  <td
-                    scope="row"
-                    className="py-1 px-4 font-medium whitespace-nowrap"
-                  >
-                    ${d.price}
-                  </td>
-                  <td
-                    scope="row"
-                    className="py-1 px-4 font-medium whitespace-nowrap"
-                  >
-                    {d.discount === 0 ? (
-                      <span>No Discount</span>
+
+                  {/* Retailer Product */}
+                  <td className="py-1 px-4 font-medium whitespace-nowrap">
+                    {d.retailerProduct ? (
+                      <div>
+                        <p><strong>ID:</strong> {d.retailerProduct._id}</p>
+                        <p><strong>Title:</strong> {d.retailerProduct.title}</p>
+                        <p><strong>Vendor:</strong> {d.retailerProduct.vendor}</p>
+                        <p><strong>Price:</strong> ${d.retailerProduct.variants[0]?.price}</p>
+                      </div>
                     ) : (
-                      <span>%{d.discount}</span>
+                      <p>No Retailer Product</p>
                     )}
                   </td>
 
-                  <td
-                    scope="row"
-                    className="py-1 px-4 font-medium whitespace-nowrap"
-                  >
-                    {d.stock}
+                  {/* Similarity Score */}
+                  <td className="py-1 px-4 font-medium whitespace-nowrap">
+                    <p>{d.similarityScore?.toFixed(2)}</p>
                   </td>
 
-                  <td
-                    scope="row"
-                    className="py-1 px-4 font-medium whitespace-nowrap"
-                  >
+                  {/* Published Shops */}
+                  <td className="py-1 px-4 font-medium whitespace-nowrap">
+                    {d.publishedRetailShops.length > 0 ? (
+                      <ul>
+                        {d.publishedRetailShops.map((shop, index) => (
+                          <li key={index}>{shop}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>Not Published</p>
+                    )}
+                  </td>
+
+                  {/* Actions */}
+                  <td className="py-1 px-4 font-medium whitespace-nowrap">
                     <div className="flex justify-start items-center gap-4">
                       <Link
-                        to={`/seller/dashboard/edit-product/${d._id}`}
+                        to={`/seller/dashboard/edit-product/${d.vendorProduct._id}`}
                         className="p-[6px] bg-yellow-500 rounded hover:shadow-lg hover:shadow-yellow-500/50"
                       >
-                        {' '}
-                        <FaEdit />{' '}
-                      </Link>
-
-                      <Link
-                        to={`/seller/dashboard/add-banner/${d._id}`}
-                        className="p-[6px] bg-sky-500 rounded hover:shadow-lg hover:shadow-yellow-500/50"
-                      >
-                        {' '}
-                        <LuImageMinus />{' '}
+                        <FaEdit />
                       </Link>
 
                       <Link className="p-[6px] bg-green-500 rounded hover:shadow-lg hover:shadow-green-500/50">
-                        {' '}
-                        <FaEye />{' '}
+                        <FaEye />
                       </Link>
+
                       <Link className="p-[6px] bg-red-500 rounded hover:shadow-lg hover:shadow-red-500/50">
-                        {' '}
-                        <FaTrash />{' '}
+                        <FaTrash />
                       </Link>
                     </div>
                   </td>
@@ -176,7 +131,7 @@ const Products = () => {
             <Pagination
               pageNumber={currentPage}
               setPageNumber={setCurrentPage}
-              totalItem={50}
+              totalItem={totalProduct}
               parPage={parPage}
               showItem={3}
             />

@@ -17,26 +17,6 @@ export const add_product = createAsyncThunk(
 
 // End Method
 
-export const get_products = createAsyncThunk(
-  'product/get_products',
-  async (
-    { parPage, page, searchValue },
-    { rejectWithValue, fulfillWithValue }
-  ) => {
-    try {
-      const { data } = await api.get(
-        `/products-get?page=${page}&&searchValue=${searchValue}&&parPage=${parPage}`,
-        { withCredentials: true }
-      );
-      return fulfillWithValue(data);
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
-  }
-);
-
-// End Method
-
 export const get_product = createAsyncThunk(
   'product/get_product',
   async (productId, { rejectWithValue, fulfillWithValue }) => {
@@ -97,7 +77,62 @@ export const product_image_update = createAsyncThunk(
 );
 
 // End Method
+export const get_products = createAsyncThunk(
+  'product/get_products',
+  async (
+    { parPage, page, searchValue },
+    { rejectWithValue, fulfillWithValue }
+  ) => {
+    try {
+      const { data } = await api.get(
+        `/products-get?page=${page}&searchValue=${searchValue}&parPage=${parPage}`,
+        { withCredentials: true }
+      );
 
+      return fulfillWithValue({
+        products: data.data, // Product data
+        pagination: data.pagination, // Pagination metadata
+      });
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const get_product_mapping = createAsyncThunk(
+  'product/get_product_mapping',
+  async (productMappingId, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get(`/product-mapping/${productMappingId}`);
+      return {
+        productMapping: data.productMapping,
+        shopURLs: data.shopURLs,
+      };
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+// AsyncThunk to publish a product to a shop
+export const publish_product_to_shop = createAsyncThunk(
+  'product/publish_product_to_shop',
+  async ({ productMappingId, shopURL }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post('/publish-product', {
+        productMappingId,
+        shopURL,
+      });
+      return data.message;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+
+
+// Product Reducer
 export const productReducer = createSlice({
   name: 'product',
   initialState: {
@@ -105,17 +140,25 @@ export const productReducer = createSlice({
     errorMessage: '',
     loader: false,
     products: [],
-    product: '',
-    totalProduct: 0,
+    pagination: {
+      currentPage: 1,
+      itemsPerPage: 10,
+      totalItems: 0,
+      totalPages: 0,
+    },
+    unmatchedProducts: [],
+    productMappings: [],
   },
   reducers: {
-    messageClear: (state, _) => {
+    messageClear: (state) => {
       state.errorMessage = '';
+      state.successMessage = '';
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(add_product.pending, (state, { payload }) => {
+      // Add product cases
+      .addCase(add_product.pending, (state) => {
         state.loader = true;
       })
       .addCase(add_product.rejected, (state, { payload }) => {
@@ -127,32 +170,45 @@ export const productReducer = createSlice({
         state.successMessage = payload.message;
       })
 
+      // Get products
       .addCase(get_products.fulfilled, (state, { payload }) => {
-        state.totalProduct = payload.totalProduct;
+        state.loader = false;
         state.products = payload.products;
+        state.pagination = payload.pagination;
       })
-      .addCase(get_product.fulfilled, (state, { payload }) => {
-        state.product = payload.product;
-      })
-
-      .addCase(update_product.pending, (state, { payload }) => {
+      .addCase(get_products.pending, (state) => {
         state.loader = true;
       })
-      .addCase(update_product.rejected, (state, { payload }) => {
+      .addCase(get_products.rejected, (state, { payload }) => {
         state.loader = false;
-        state.errorMessage = payload.error;
+        state.errorMessage = payload.error || 'Failed to fetch products';
       })
-      .addCase(update_product.fulfilled, (state, { payload }) => {
+      
+      .addCase(get_product_mapping.pending, (state) => {
+        state.loader = true;
+      })
+      .addCase(get_product_mapping.fulfilled, (state, { payload }) => {
         state.loader = false;
-        state.product = payload.product;
-        state.successMessage = payload.message;
+        state.productMapping = payload.productMapping;
+        state.shopURLs = payload.shopURLs;
+      })
+      .addCase(get_product_mapping.rejected, (state, { payload }) => {
+        state.loader = false;
+        state.errorMessage = payload || 'Failed to fetch product mapping';
       })
 
-      .addCase(product_image_update.fulfilled, (state, { payload }) => {
-        state.product = payload.product;
-        state.successMessage = payload.message;
+      .addCase(publish_product_to_shop.pending, (state) => {
+        state.loader = true;
+      })
+      .addCase(publish_product_to_shop.fulfilled, (state, { payload }) => {
+        state.loader = false;
+        state.successMessage = payload;
+      })
+      .addCase(publish_product_to_shop.rejected, (state, { payload }) => {
+        state.loader = false;
+        state.errorMessage = payload || 'Failed to publish product';
       });
-  },
+  },  
 });
 export const { messageClear } = productReducer.actions;
 export default productReducer.reducer;

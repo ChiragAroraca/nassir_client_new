@@ -4,7 +4,6 @@ import { getNav } from '../navigation/index';
 import { BiLogOutCircle } from 'react-icons/bi';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../store/Reducers/authReducer';
-import logo from '../assets/logo.png';
 
 const Sidebar = ({ showSidebar, setShowSidebar }) => {
   const dispatch = useDispatch();
@@ -31,7 +30,7 @@ const Sidebar = ({ showSidebar, setShowSidebar }) => {
       >
         <div className="h-[70px] flex justify-center items-center">
           <Link to="/" className="w-[180px] h-[50px]">
-            <img className="w-full h-full" src={logo} alt="" />
+            <img className="w-full h-full" src="https://cdn.shopify.com/shopifycloud/brochure/assets/brand-assets/logo-bestpractices-old-small-9d48f4906860fcf2c2f4257abede5f6f8d6fbc8f6fe7473e06998c136d77d963.png" alt="" />
           </Link>
         </div>
 
