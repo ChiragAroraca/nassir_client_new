@@ -6,4 +6,4 @@ export const overrideStyle = {
   justifyContent: 'center',
   alignItems: 'center',
 };
-export const socket = io('https://mlsserver-10ed9240e649.herokuapp.com');
+export const socket = io(process.env.REACT_APP_SERVER_URL);
