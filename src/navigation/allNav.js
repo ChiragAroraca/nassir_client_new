@@ -91,6 +91,20 @@ export const allNav = [
     path: '/seller/dashboard/products',
   },
   {
+    id: 10,
+    title: 'Retailer Products',
+    icon: <MdViewList />,
+    role: 'seller',
+    path: '/seller/dashboard/retailer-products',
+  },
+  {
+    id: 10,
+    title: 'Vendor Products',
+    icon: <MdViewList />,
+    role: 'seller',
+    path: '/seller/dashboard/vendor-products',
+  },
+  {
     id: 17,
     title: 'Profile',
     icon: <CgProfile />,

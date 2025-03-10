@@ -1,9 +1,11 @@
 import React from 'react';
 import { FaList } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 
 const Header = ({ showSidebar, setShowSidebar }) => {
   const { userInfo } = useSelector((state) => state.auth);
+  const location = useLocation();
 
   return (
     <div className="fixed top-0 left-0 w-full py-5 px-2 lg:px-7 z-40">
@@ -16,15 +18,16 @@ const Header = ({ showSidebar, setShowSidebar }) => {
             <FaList />
           </span>
         </div>
-
-        <div className="hidden md:block">
-          <input
-            className="px-3 py-2 outline-none border bg-transparent border-slate-700 rounded-md text-[#423d72] focus:border-indigo-300 overflow-hidden"
-            type="text"
-            name="search"
-            placeholder="search"
-          />
-        </div>
+        {location.pathname !== '/seller/dashboard/vendor-products' && location.pathname !== '/seller/dashboard/retailer-products' ? (
+          <div className="hidden md:block">
+            <input
+              className="px-3 py-2 outline-none border bg-transparent border-slate-700 rounded-md text-[#423d72] focus:border-indigo-300 overflow-hidden"
+              type="text"
+              name="search"
+              placeholder="search"
+            />
+          </div>
+        ) : null}
 
         <div className="flex justify-center items-center gap-8 relative">
           <div className="flex justify-center items-center">

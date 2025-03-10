@@ -4,9 +4,8 @@ import api from "../../api/api";
 export const get_admin_orders = createAsyncThunk(
     'orders/get_admin_orders',
     async({ parPage,page,searchValue },{rejectWithValue, fulfillWithValue}) => {
-        
+
         try {
-             
             const {data} = await api.get(`/admin/orders?page=${page}&searchValue=${searchValue}&parPage=${parPage}`,{withCredentials: true})  
             return fulfillWithValue(data)
         } catch (error) { 

@@ -99,6 +99,47 @@ export const get_products = createAsyncThunk(
   }
 );
 
+export const get_vendor_products = createAsyncThunk(
+  'product/get_vendor_products',
+  async (
+    { parPage, page, searchValue,shopUrl},
+    { rejectWithValue, fulfillWithValue }
+  ) => {
+    try {
+      const { data } = await api.get(
+        `/vendor-products-get?page=${page}&searchValue=${searchValue}&parPage=${parPage}`,
+        { withCredentials: true }
+      );
+      return fulfillWithValue({
+        products: data.data, // Product data
+        pagination: data.pagination, // Pagination metadata
+      });
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'An error occurred');
+    }
+  }
+);
+export const get_retailer_products = createAsyncThunk(
+  'product/get_retailer_products',
+  async (
+    { parPage, page, searchValue },
+    { rejectWithValue, fulfillWithValue }
+  ) => {
+    try {
+      const { data } = await api.get(
+        `/retailer-products-get?page=${page}&searchValue=${searchValue}&parPage=${parPage}`,
+        { withCredentials: true }
+      );
+      return fulfillWithValue({
+        products: data.data, // Product data
+        pagination: data.pagination, // Pagination metadata
+      });
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'An error occurred');
+    }
+  }
+);
+
 export const get_product_mapping = createAsyncThunk(
   'product/get_product_mapping',
   async (productMappingId, { rejectWithValue }) => {
@@ -186,6 +227,23 @@ export const productReducer = createSlice({
       
       .addCase(get_product_mapping.pending, (state) => {
         state.loader = true;
+      })
+      .addCase(get_vendor_products.fulfilled, (state, action) => {
+        state.products = action.payload.products;  // Ensure Redux updates products
+        state.totalProduct = action.payload.pagination.total || 0;
+
+      })
+      .addCase(get_vendor_products.rejected, (state, action) => {
+        console.error("Redux Fetch Error:", action.payload);
+      })
+      .addCase(get_retailer_products.fulfilled, (state, action) => {
+        console.log(action.payload.products,'PRODUCTSM<')
+        state.products = action.payload.products;  // Ensure Redux updates products
+        state.totalProduct = action.payload.pagination.total || 0;
+
+      })
+      .addCase(get_retailer_products.rejected, (state, action) => {
+        console.error("Redux Fetch Error:", action.payload);
       })
       .addCase(get_product_mapping.fulfilled, (state, { payload }) => {
         state.loader = false;
