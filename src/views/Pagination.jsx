@@ -10,6 +10,7 @@ const Pagination = ({
   totalItem,
   parPage,
   showItem,
+  hasMore
 }) => {
   let totalPage = Math.ceil(totalItem / parPage);
   let startPage = pageNumber;
@@ -49,7 +50,7 @@ const Pagination = ({
           <MdOutlineKeyboardDoubleArrowLeft />
         </li>
       )}
-      {createBtn()}
+      {hasMore?createBtn():null}
       {pageNumber < totalPage && (
         <li
           onClick={() => setPageNumber(pageNumber + 1)}

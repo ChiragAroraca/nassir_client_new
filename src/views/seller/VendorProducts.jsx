@@ -7,6 +7,7 @@ import Pagination from "../Pagination";
 const VendorProducts = () => {
   const dispatch = useDispatch();
   const { products } = useSelector((state) => state.product);
+  const hasMore=useSelector((state)=>state.product.hasMore)
   const [currentPage, setCurrentPage] = useState(1);
   const [searchValue, setSearchValue] = useState("");
   const [parPage, setParPage] = useState(50);
@@ -39,9 +40,7 @@ const VendorProducts = () => {
     }
   }, [shopUrl, products]);
 
-  useEffect(()=>{
-console.log(filteredProducts,'FILTERED<><><><><><>')
-  },[filteredProducts])
+
 
   const openModal = (vendor) => {
     setSelectedVendor(vendor);
@@ -80,6 +79,7 @@ console.log(filteredProducts,'FILTERED<><><><><><>')
       <div className="w-full p-6 bg-white text-gray-800 rounded-lg shadow">
         <Search
           setParPage={setParPage}
+          setCurrentPage={setCurrentPage}
           setSearchValue={setSearchValue}
           searchValue={searchValue}
         />
@@ -153,6 +153,7 @@ console.log(filteredProducts,'FILTERED<><><><><><>')
         <div className="w-full flex justify-end mt-6">
           <Pagination
             pageNumber={currentPage}
+            hasMore={hasMore}
             setPageNumber={setCurrentPage}
             parPage={parPage}
             showItem={3}
@@ -164,7 +165,7 @@ console.log(filteredProducts,'FILTERED<><><><><><>')
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="w-3/4 md:w-1/2 lg:w-1/3 bg-white rounded-lg p-6 shadow-lg relative max-h-[80vh] overflow-y-auto">
             <button className="absolute top-4 right-6 text-gray-600 text-xl" onClick={closeModal}> ✖</button>
-            <h5 className="text-sm pr-10 font-bold text-gray-800 mb-4">Vendor Products for {selectedVendor.vendor_title}</h5>
+            <h5 className="text-sm pr-10 font-bold text-gray-800 mb-4">Retailer Products Matching {selectedVendor.vendor_title}</h5>
             <div className="mb-4 relative">
               <input
                 type="number"

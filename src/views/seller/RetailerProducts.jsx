@@ -7,6 +7,7 @@ import Pagination from '../Pagination';
 const RetailerProducts = () => {
   const dispatch = useDispatch();
   const { products } = useSelector((state) => state.product);
+  const hasMore=useSelector((state)=>state.product.hasMore)
   const [currentPage, setCurrentPage] = useState(1);
   const [searchValue, setSearchValue] = useState('');
   const [parPage, setParPage] = useState(20);
@@ -67,7 +68,11 @@ const RetailerProducts = () => {
     <div className="p-6 lg:p-10 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 text-white rounded-lg shadow-lg">
       <h1 className="text-white font-bold text-2xl mb-6">All Products</h1>
       <div className="w-full p-6 bg-white text-gray-800 rounded-lg shadow">
-      <Search setParPage={setParPage} setSearchValue={setSearchValue} searchValue={searchValue} />
+        <Search
+          setParPage={setParPage}
+          setCurrentPage={setCurrentPage}
+          setSearchValue={setSearchValue}
+          searchValue={searchValue} />
         <div className="flex items-center mb-4">
           {shopUrl && (
             <div className="flex items-center ml-4 bg-gray-200 text-gray-800 rounded-full px-3 py-1">
@@ -140,6 +145,7 @@ const RetailerProducts = () => {
             pageNumber={currentPage}
             setPageNumber={setCurrentPage}
             parPage={parPage}
+            hasMore={hasMore}
             showItem={3}
           />
         </div>
@@ -149,7 +155,7 @@ const RetailerProducts = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="w-3/4 md:w-1/2 lg:w-1/3 bg-white rounded-lg p-6 shadow-lg relative max-h-[80vh] overflow-y-auto">
             <button className="absolute top-4 right-6 text-gray-600 text-xl" onClick={closeModal}>✖</button>
-            <h5 className="text-sm pr-10 font-bold text-gray-800 mb-4">Retailer Products for {selectedVendor.retail_title}</h5>
+            <h5 className="text-sm pr-10 font-bold text-gray-800 mb-4">Vendor Products matching {selectedVendor.retail_title}</h5>
             <div className="mb-4 relative">
               <input
                 type="number"

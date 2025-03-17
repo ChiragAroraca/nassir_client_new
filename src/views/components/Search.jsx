@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Search = ({ setParPage, setSearchValue, searchValue }) => {
+const Search = ({ setParPage, setSearchValue, searchValue,setCurrentPage=()=>{} }) => {
   
 
   return (
@@ -14,7 +14,9 @@ const Search = ({ setParPage, setSearchValue, searchValue }) => {
         <option value="20">20</option>
       </select>
       <input
-        onChange={(e) => setSearchValue(e.target.value)}
+        onChange={(e) => {
+          setCurrentPage(1)
+          setSearchValue(e.target.value)}}
         value={searchValue}
         className="px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#fff] placeholder-white"
         type="text"

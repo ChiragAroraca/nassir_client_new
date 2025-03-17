@@ -230,6 +230,7 @@ export const productReducer = createSlice({
       })
       .addCase(get_vendor_products.fulfilled, (state, action) => {
         state.products = action.payload.products;  // Ensure Redux updates products
+        state.hasMore=action.payload.pagination.hasMore;
         state.totalProduct = action.payload.pagination.total || 0;
 
       })
@@ -239,6 +240,7 @@ export const productReducer = createSlice({
       .addCase(get_retailer_products.fulfilled, (state, action) => {
         console.log(action.payload.products,'PRODUCTSM<')
         state.products = action.payload.products;  // Ensure Redux updates products
+        state.hasMore=action.payload.pagination.hasMore;
         state.totalProduct = action.payload.pagination.total || 0;
 
       })
