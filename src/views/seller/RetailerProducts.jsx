@@ -3,20 +3,19 @@ import Search from '../components/Search';
 import { useDispatch, useSelector } from 'react-redux';
 import { get_retailer_products } from '../../store/Reducers/productReducer';
 import Pagination from '../Pagination';
+import { useNavigate } from 'react-router-dom';
 
 const RetailerProducts = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { products } = useSelector((state) => state.product);
-  const hasMore=useSelector((state)=>state.product.hasMore)
+  const hasMore = useSelector((state) => state.product.hasMore);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [searchValue, setSearchValue] = useState('');
   const [parPage, setParPage] = useState(20);
-  const [selectedVendor, setSelectedVendor] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [minSimilarity, setMinSimilarity] = useState(""); // State for minimum similarity
-  const [filteredMatches, setFilteredMatches] = useState([]);
-  const [shopUrl, setShopUrl] = useState(null); // State for shop URL
-  const [filteredProducts, setFilteredProducts] = useState(products); // State for filtered products
+  const [shopUrl, setShopUrl] = useState(null);
+  const [filteredProducts, setFilteredProducts] = useState(products);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -24,44 +23,35 @@ const RetailerProducts = () => {
   }, [searchValue, currentPage, parPage, dispatch]);
 
   useEffect(() => {
-    // Filter products based on the selected shop URL
     if (shopUrl) {
       const filtered = products.filter(product => product?.retailerDetails?.shopURL === shopUrl);
       setFilteredProducts(filtered);
     } else {
-      setFilteredProducts(products); // Reset to all products if no shop URL is selected
+      setFilteredProducts(products);
     }
   }, [shopUrl, products]);
 
-  const openModal = (retailer) => {
-    setSelectedVendor(retailer);
-    setFilteredMatches(retailer.matches || []);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedVendor(null);
-    setMinSimilarity(""); // Reset minSimilarity when closing modal
-  };
-
-  const handleFilter = () => {
-    if (selectedVendor) {
-      const minScore = parseFloat(minSimilarity) / 100; // Convert percentage to decimal
-      const matches = selectedVendor.matches.filter(item => item.similarity >= minScore);
-      setFilteredMatches(matches);
-    }
-  };
-
   const handleShopUrlClick = (shopURL, e) => {
-    e.preventDefault(); // Prevent default anchor behavior
-    setShopUrl(shopURL); // Set the shop URL state
-    setCurrentPage(1); // Reset current page to 1
+    e.preventDefault();
+    setShopUrl(shopURL);
+    setCurrentPage(1);
   };
 
   const clearShopUrl = () => {
-    setShopUrl(null); // Clear the selected shop URL
-    setFilteredProducts(products); // Reset to all products
+    setShopUrl(null);
+    setFilteredProducts(products);
+  };
+
+  // Handle row click to navigate to detail page
+  const handleRowClick = (retailer) => {
+    console.log(retailer,'RETAILER<><><.');
+    
+    navigate(`/retailer-product/${retailer.retail_id?.$numberLong || retailer.retail_id}`, {
+      state: {
+        retailer,
+        matches: retailer.matches || [],
+      },
+    });
   };
 
   return (
@@ -72,7 +62,9 @@ const RetailerProducts = () => {
           setParPage={setParPage}
           setCurrentPage={setCurrentPage}
           setSearchValue={setSearchValue}
-          searchValue={searchValue} />
+          searchValue={searchValue} 
+        />
+
         <div className="flex items-center mb-4">
           {shopUrl && (
             <div className="flex items-center ml-4 bg-gray-200 text-gray-800 rounded-full px-3 py-1">
@@ -83,6 +75,7 @@ const RetailerProducts = () => {
             </div>
           )}
         </div>
+
         <div className="relative overflow-x-auto mt-5">
           <table className="w-full text-sm text-left text-gray-800">
             <thead className="text-sm uppercase border-b border-gray-300 bg-gray-100">
@@ -97,7 +90,7 @@ const RetailerProducts = () => {
                 <tr
                   key={i}
                   className="border-b border-gray-300 cursor-pointer hover:bg-gray-200 transition"
-                  onClick={() => openModal(retailer)}
+                  onClick={() => handleRowClick(retailer)}
                 >
                   <td className="py-3 px-4 font-medium whitespace-nowrap">
                     <p>
@@ -125,10 +118,7 @@ const RetailerProducts = () => {
                   <td className="py-3 px-4 font-medium whitespace-nowrap">
                     <a
                       href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleShopUrlClick(retailer?.retailerDetails?.shopURL, e);
-                      }}
+                      onClick={(e) => handleShopUrlClick(retailer?.retailerDetails?.shopURL, e)}
                       className="text-blue-600 hover:underline"
                     >
                       {retailer?.retailerDetails?.shopURL}
@@ -150,39 +140,6 @@ const RetailerProducts = () => {
           />
         </div>
       </div>
-
-      {isModalOpen && selectedVendor && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="w-3/4 md:w-1/2 lg:w-1/3 bg-white rounded-lg p-6 shadow-lg relative max-h-[80vh] overflow-y-auto">
-            <button className="absolute top-4 right-6 text-gray-600 text-xl" onClick={closeModal}>✖</button>
-            <h5 className="text-sm pr-10 font-bold text-gray-800 mb-4">Vendor Products matching {selectedVendor.retail_title}</h5>
-            <div className="mb-4 relative">
-              <input
-                type="number"
-                placeholder="Min Similarity (%)"
-                value={minSimilarity}
-                onChange={(e) => setMinSimilarity(e.target.value)}
-                className="px-4 py-2 border rounded-lg w-full text-black"
-              />
-              <button
-                onClick={handleFilter}
-                className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg"
-              >
-                Apply Filter
-              </button>
-            </div>
-            <div className="flex flex-col gap-4 items-center">
-              {filteredMatches?.map((item, index) => (
-                <div key={index} className="p-4 border rounded-lg shadow-md bg-gray-100 w-full">
-                  <p className="text-black"><strong>ID:</strong> {item?.vendor_id?.$numberLong || item?.vendor_id}</p>
-                  <p className="text-black"><strong>Title:</strong> {item?.vendor_title}</p>
-                  <p className="text-black"><strong>Score:</strong> {(item?.similarity * 100).toFixed(2)}%</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

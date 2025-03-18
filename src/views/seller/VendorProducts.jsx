@@ -3,6 +3,8 @@ import Search from "../components/Search";
 import { useDispatch, useSelector } from "react-redux";
 import { get_vendor_products } from "../../store/Reducers/productReducer";
 import Pagination from "../Pagination";
+import { useNavigate } from "react-router-dom";
+
 
 const VendorProducts = () => {
   const dispatch = useDispatch();
@@ -17,6 +19,8 @@ const VendorProducts = () => {
   const [filteredMatches, setFilteredMatches] = useState([]);
   const [shopUrl, setShopUrl] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState(products); // State for filtered products
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -42,6 +46,14 @@ const VendorProducts = () => {
 
 
 
+  const handleRowClick = (vendor) => {
+    navigate(`/vendor-product/${vendor.vendor_id?.$numberLong || vendor.vendor_id}`, {
+      state: {
+        vendor,
+        matches: vendor.matches || [],
+      },
+    });
+  };
   const openModal = (vendor) => {
     setSelectedVendor(vendor);
     setFilteredMatches(vendor.matches || []);
@@ -104,11 +116,11 @@ const VendorProducts = () => {
             </thead>
             <tbody>
               {filteredProducts?.map((vendor, i) => (
-                <tr
-                  key={i}
-                  className="border-b border-gray-300 cursor-pointer hover:bg-gray-200 transition"
-                  onClick={() => openModal(vendor)}
-                >
+               <tr
+               key={i}
+               className="border-b border-gray-300 cursor-pointer hover:bg-gray-200 transition"
+               onClick={() => handleRowClick(vendor)}
+             >
                   <td className="py-3 px-4 font-medium whitespace-nowrap">
                     <p>
                       <strong>ID:</strong> {vendor.vendor_id?.$numberLong || vendor.vendor_id}

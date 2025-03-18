@@ -107,7 +107,7 @@ export const get_vendor_products = createAsyncThunk(
   ) => {
     try {
       const { data } = await api.get(
-        `/vendor-products-get?page=${page}&searchValue=${searchValue}&parPage=${parPage}`,
+        `/vendor-products-get?page=${page}&searchValue=${searchValue}&parPage=${parPage}&shopUrl=${shopUrl}`,
         { withCredentials: true }
       );
       return fulfillWithValue({
