@@ -6,7 +6,6 @@ const VendorProductDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const vendor = location.state?.vendor;
-
   const [minSimilarity, setMinSimilarity] = useState(0);
   const [filteredMatches, setFilteredMatches] = useState(vendor?.matches || []);
   const [shopUrls, setShopUrls] = useState([]);
@@ -14,7 +13,7 @@ const VendorProductDetails = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedShop, setSelectedShop] = useState(null);
   const [productDescription, setProductDescription] = useState("");
-  const [wordCount, setWordCount] = useState("");
+  const [prompt, setPrompt] = useState("");
   const [isLoadingDescription, setIsLoadingDescription] = useState(false);
   const [descriptionError, setDescriptionError] = useState("");
 
@@ -58,11 +57,10 @@ const VendorProductDetails = () => {
 
   const goBack = () => navigate(-1);
 
-  const openModal = (product, shop) => {
-    setSelectedProduct(product);
+  const openModal = (shop) => {
     setSelectedShop(shop);
     setProductDescription("");
-    setWordCount("");
+    setPrompt("");
     setDescriptionError("");
     setShowModal(true);
   };
@@ -71,17 +69,12 @@ const VendorProductDetails = () => {
     setShowModal(false);
     setSelectedProduct(null);
     setProductDescription("");
-    setWordCount("");
+    setPrompt("");
     setIsLoadingDescription(false);
     setDescriptionError("");
   };
 
   const fetchDescription = async () => {
-    if (!wordCount || isNaN(wordCount) || Number(wordCount) <= 0) {
-      setDescriptionError("Please enter a valid number of words.");
-      return;
-    }
-
     setIsLoadingDescription(true);
     setDescriptionError("");
 
@@ -93,7 +86,7 @@ const VendorProductDetails = () => {
         },
         body: JSON.stringify({
           desc: vendor?.vendorDetails?.body_html,
-          numberOfWords: Number(wordCount),
+          prompt: prompt?prompt:'I want a short and accurate description in about 100 words.',
         }),
         credentials: "include",
       });
@@ -113,13 +106,13 @@ const VendorProductDetails = () => {
   };
 
   const handleApproveAndPublish = () => {
-    // dispatch(publish_product_to_shop(selectedProduct?._id, selectedShop));
+    // dispatch(publish_product_to_shop(vendor?._id, selectedShop));
     alert(`Product Approved and Published to ${selectedShop}`);
     closeModal();
   };
 
-  const handleGenerate = (product, shop) => {
-    openModal(product, shop);
+  const handleGenerate = (shop) => {
+    openModal(shop);
   };
 
   return (
@@ -169,99 +162,126 @@ const VendorProductDetails = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-y-auto">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">Retailer Matches</h1>
-        <div className="grid gap-4">
-          {filteredMatches.map((item, index) => (
-            <div key={index} className="p-4 border rounded-lg shadow bg-white grid grid-cols-2">
-              <div>
+      <div className="flex-1 p-6 overflow-y-auto grid grid-cols-2 gap-6">
+        {/* Left Column: Retailer Matches */}
+        <div className={shopUrls?.length === 0 ? "col-span-2" : ""}>
+          <h1 className="text-2xl font-bold mb-4 text-gray-800">Retailer Matches</h1>
+          <div className="space-y-4">
+            {filteredMatches.map((item, index) => (
+              <div
+                key={index}
+                className={`p-4 border rounded-lg shadow bg-white cursor-pointer`}
+              >
                 <h3 className="font-semibold">{item?.retail_title}</h3>
                 <p><strong>ID:</strong> {item?.retail_id?.$numberLong || item?.retail_id}</p>
                 <p><strong>Score:</strong> {(item?.similarity * 100).toFixed(2)}%</p>
               </div>
-              <div className="flex flex-col">
-                {shopUrls?.map((shop, shopIndex) => (
-                  <div key={shopIndex} className="flex items-center justify-between mt-2">
-                    <h1 className="text-sm font-bold text-gray-800">{shop.shopURL}</h1>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Column: Shop URLs */}
+        {shopUrls?.length > 0 && (
+          <div>
+            <h1 className="text-2xl font-bold mb-4 text-gray-800">Shop URLs</h1>
+            <div className="space-y-4">
+              {shopUrls.map((shop, shopIndex) => (
+                <div key={shopIndex} className="p-4 border rounded-lg shadow bg-white flex items-center justify-between">
+                  <h1 className="text-sm font-bold text-gray-800">{shop.shopURL}</h1>
+                  <div className="flex gap-2">
                     <button
-                      onClick={() => handleGenerate(item, shop?.shopURL)}
+                      onClick={() => handleGenerate(shop.shopURL)}
                       className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
                     >
-                      Generate
+                      Generate Description
+                    </button>
+                    <button
+                      onClick={() => handleApproveAndPublish()}
+                      className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition"
+                    >
+                      Publish
                     </button>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-800">Product Description Generator</h2>
-              <button
-                onClick={closeModal}
-                className="text-gray-500 hover:text-gray-800"
-                aria-label="Close modal"
-              >
-                &times;
-              </button>
-            </div>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-gray-800">Product Description Generator</h2>
+        <button
+          onClick={closeModal}
+          className="text-gray-500 hover:text-gray-800"
+          aria-label="Close modal"
+        >
+          &times;
+        </button>
+      </div>
 
-            <input
-              type="number"
-              placeholder="Enter number of words"
-              value={wordCount}
-              onChange={(e) => setWordCount(e.target.value)}
-              className="w-full p-3 border rounded-lg text-black mb-4"
-              disabled={isLoadingDescription || productDescription}
-            />
+      {/* Display Word Count of vendor?.body_html */}
+      <div className="mb-4">
+        <p className="text-sm text-gray-600">
+          Word count in product's previous description:{" "}
+          <strong>{vendor?.vendorDetails?.body_html?.split(/\s+/).filter(Boolean).length || 0}</strong>
+        </p>
+      </div>
 
-            {!productDescription && (
-              <button
-                onClick={fetchDescription}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition mb-4 w-full"
-                disabled={isLoadingDescription}
-              >
-                {isLoadingDescription ? "Generating..." : "Generate Description"}
-              </button>
-            )}
+      <input
+        type="text"
+        placeholder="Enter prompt for new description"
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        className="w-full p-3 border rounded-lg text-black mb-4"
+        disabled={isLoadingDescription || productDescription}
+      />
 
-            {descriptionError && (
-              <p className="text-red-600 text-sm mb-4">{descriptionError}</p>
-            )}
-
-            {productDescription && (
-              <>
-                <textarea
-                  rows={6}
-                  value={productDescription}
-                  onChange={(e) => setProductDescription(e.target.value)}
-                  className="w-full p-3 border rounded-lg text-black mb-4"
-                />
-                <div className="flex justify-between">
-                  <button
-                    onClick={handleApproveAndPublish}
-                    className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition"
-                  >
-                    Approve and Publish
-                  </button>
-                  <button
-                    onClick={closeModal}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                  >
-                    Close
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+      {!productDescription && (
+        <button
+          onClick={fetchDescription}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition mb-4 w-full"
+          disabled={isLoadingDescription}
+        >
+          {isLoadingDescription ? "Generating..." : "Generate Description"}
+        </button>
       )}
+
+      {descriptionError && (
+        <p className="text-red-600 text-sm mb-4">{descriptionError}</p>
+      )}
+
+      {productDescription && (
+        <>
+          <textarea
+            rows={6}
+            value={productDescription}
+            onChange={(e) => setProductDescription(e.target.value)}
+            className="w-full p-3 border rounded-lg text-black mb-4"
+          />
+          <div className="flex justify-between">
+            <button
+              onClick={handleApproveAndPublish}
+              className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition"
+            >
+              Approve and Publish
+            </button>
+            <button
+              onClick={closeModal}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+            >
+              Close
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  </div>
+)}
     </div>
   );
 };

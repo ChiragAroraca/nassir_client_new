@@ -31,11 +31,6 @@ const RetailerProducts = () => {
     }
   }, [shopUrl, products]);
 
-  const handleShopUrlClick = (shopURL, e) => {
-    e.preventDefault();
-    setShopUrl(shopURL);
-    setCurrentPage(1);
-  };
 
   const clearShopUrl = () => {
     setShopUrl(null);
@@ -117,8 +112,10 @@ const RetailerProducts = () => {
                   </td>
                   <td className="py-3 px-4 font-medium whitespace-nowrap">
                     <a
-                      href="#"
-                      onClick={(e) => handleShopUrlClick(retailer?.retailerDetails?.shopURL, e)}
+                      href={retailer?.retailerDetails?.shopURL}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                      }}
                       className="text-blue-600 hover:underline"
                     >
                       {retailer?.retailerDetails?.shopURL}

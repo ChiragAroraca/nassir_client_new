@@ -36,7 +36,6 @@ const VendorProducts = () => {
   useEffect(() => {
     // Filter products based on the selected shop URL
     if (shopUrl) {
-      console.log(shopUrl,'GOT THIS SHOP URL<><.')
       const filtered = products.filter(product => product?.vendorDetails?.shopURL === shopUrl);
       setFilteredProducts(filtered);
     } else {
@@ -74,11 +73,6 @@ const VendorProducts = () => {
     }
   };
 
-  const handleShopUrlClick = (shopURL, e) => {
-    e.preventDefault(); // Prevent default anchor behavior
-    setShopUrl(shopURL); // Set the shop URL state
-    setCurrentPage(1); // Reset current page to 1
-  };
 
   const clearShopUrl = () => {
     setShopUrl(null); // Clear the selected shop URL
@@ -146,10 +140,9 @@ const VendorProducts = () => {
                   </td>
                   <td className="py-3 px-4 font-medium whitespace-nowrap">
                     <a 
-                      href="#"
+                      href={vendor?.vendorDetails?.shopURL}
                       onClick={(e) => {
-                        e.preventDefault();
-                        handleShopUrlClick(vendor?.vendorDetails?.shopURL, e);
+                        e.stopPropagation()
                       }}
                       className="text-blue-600 hover:underline"
                     >

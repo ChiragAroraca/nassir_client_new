@@ -11,10 +11,9 @@ const RetailerProductDetails = () => {
   const [filteredMatches, setFilteredMatches] = useState(retailer?.matches || []);
   const [shopUrls, setShopUrls] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedShop,setSelectedShop]=useState(null)
+  const [selectedShop, setSelectedShop] = useState(null);
   const [productDescription, setProductDescription] = useState("");
-  const [wordCount, setWordCount] = useState("");
+  const [prompt, setPrompt] = useState("");
   const [isLoadingDescription, setIsLoadingDescription] = useState(false);
   const [descriptionError, setDescriptionError] = useState("");
 
@@ -37,7 +36,7 @@ const RetailerProductDetails = () => {
       const data = await response.json();
       if (data.success) {
         setFilteredMatches(data.data);
-        setShopUrls(data?.lowSimilarityMatches); // Assuming this is an array of objects
+        setShopUrls(data?.lowSimilarityMatches); // Assuming this is an array of shop URLs
       } else {
         console.error(data.message);
       }
@@ -58,30 +57,23 @@ const RetailerProductDetails = () => {
 
   const goBack = () => navigate(-1);
 
-  const openModal = (product,shop) => {
-    setSelectedProduct(product);
-    setSelectedShop(shop)
+  const openModal = (shop) => {
+    setSelectedShop(shop);
     setProductDescription("");
-    setWordCount("");
+    setPrompt("");
     setDescriptionError("");
     setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
-    setSelectedProduct(null);
     setProductDescription("");
-    setWordCount("");
+    setPrompt("");
     setIsLoadingDescription(false);
     setDescriptionError("");
   };
 
   const fetchDescription = async () => {
-    if (!wordCount || isNaN(wordCount) || Number(wordCount) <= 0) {
-      setDescriptionError("Please enter a valid number of words.");
-      return;
-    }
-
     setIsLoadingDescription(true);
     setDescriptionError("");
 
@@ -93,7 +85,7 @@ const RetailerProductDetails = () => {
         },
         body: JSON.stringify({
           desc: retailer?.retailerDetails?.body_html,
-          numberOfWords: Number(wordCount),
+          prompt: prompt?prompt:'I want a short and accurate description in about 100 words.',
         }),
         credentials: "include",
       });
@@ -113,14 +105,13 @@ const RetailerProductDetails = () => {
   };
 
   const handleApproveAndPublish = () => {
-    // dispatch(publish_product_to_shop(selectedProduct?._id,selectedShop));
+    // dispatch(publish_product_to_shop(retailer?._id, selectedShop));
     alert(`Product Approved and Published to ${selectedShop}`);
     closeModal();
   };
 
-  const handleGenerate = (product,shop) => {
-    // Implement the logic for generating a description for the specific product
-    openModal(product,shop);
+  const handleGenerate = (shop) => {
+    openModal(shop);
   };
 
   return (
@@ -148,7 +139,7 @@ const RetailerProductDetails = () => {
             type="number"
             placeholder="Min Similarity (%)"
             value={minSimilarity}
-            onChange={(e) => setMinSimilarity (e.target.value)}
+            onChange={(e) => setMinSimilarity(e.target.value)}
             className="px-4 py-2 border text-black rounded-lg w-full mb-3"
           />
           <button
@@ -170,32 +161,51 @@ const RetailerProductDetails = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-y-auto">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">Vendor Matches</h1>
-        <div className="grid gap-4">
-          {filteredMatches.map((item, index) => (
-            <div key={index} className="p-4 border rounded-lg shadow bg-white grid grid-cols-2">
-              <div>
+      <div className="flex-1 p-6 overflow-y-auto grid grid-cols-2 gap-6">
+        {/* Left Column: Vendor Matches */}
+        <div className={shopUrls?.length === 0 ? "col-span-2" : ""}>
+          <h1 className="text-2xl font-bold mb-4 text-gray-800">Vendor Matches</h1>
+          <div className="space-y-4">
+            {filteredMatches.map((item, index) => (
+              <div
+                key={index}
+                className={`p-4 border rounded-lg shadow bg-white cursor-pointer`}
+              >
                 <h3 className="font-semibold">{item?.vendor_title}</h3>
                 <p><strong>ID:</strong> {item?.vendor_id?.$numberLong || item?.vendor_id}</p>
                 <p><strong>Score:</strong> {(item?.similarity * 100).toFixed(2)}%</p>
               </div>
-              <div className="flex flex-col">
-                {shopUrls?.map((shop, shopIndex) => (
-                  <div key={shopIndex} className="flex items-center justify-between mt-2">
-                    <h1 className="text-sm font-bold text-gray-800">{shop.shopURL}</h1>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Column: Shop URLs */}
+        {shopUrls?.length > 0 && (
+          <div>
+            <h1 className="text-2xl font-bold mb-4 text-gray-800">Shop URLs</h1>
+            <div className="space-y-4">
+              {shopUrls.map((shop, shopIndex) => (
+                <div key={shopIndex} className="p-4 border rounded-lg shadow bg-white flex items-center justify-between">
+                  <h1 className="text-sm font-bold text-gray-800">{shop.shopURL}</h1>
+                  <div className="flex gap-2">
                     <button
-                      onClick={() => handleGenerate(item,shop?.shopURL)}
+                      onClick={() => handleGenerate(shop.shopURL)}
                       className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
                     >
-                      Generate
+                      Generate Description
+                    </button>
+                    <button
+                      onClick={() => handleApproveAndPublish()}
+                      className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition"
+                    >
+                      Publish
                     </button>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Modal */}
@@ -209,15 +219,23 @@ const RetailerProductDetails = () => {
                 className="text-gray-500 hover:text-gray-800"
                 aria-label="Close modal"
               >
-                &times; {/* Close icon */}
+                &times;
               </button>
             </div>
 
+            {/* Display Word Count of retailer?.retailerDetails?.body_html */}
+            <div className="mb-4">
+              <p className="text-sm text-gray-600">
+                Word count in product's previous description:{" "}
+                <strong>{retailer?.retailerDetails?.body_html?.split(/\s+/).filter(Boolean).length || 0}</strong>
+              </p>
+            </div>
+
             <input
-              type="number"
-              placeholder="Enter number of words"
-              value={wordCount}
-              onChange={(e) => setWordCount(e.target.value)}
+              type="text"
+              placeholder="Enter prompt for new description"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
               className="w-full p-3 border rounded-lg text-black mb-4"
               disabled={isLoadingDescription || productDescription}
             />
@@ -255,7 +273,7 @@ const RetailerProductDetails = () => {
                     onClick={closeModal}
                     className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
                   >
-                    Cancel
+                    Close
                   </button>
                 </div>
               </>
