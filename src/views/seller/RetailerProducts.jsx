@@ -13,7 +13,7 @@ const RetailerProducts = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchValue, setSearchValue] = useState('');
-  const [parPage, setParPage] = useState(20);
+  const [parPage, setParPage] = useState(10);
   const [shopUrl, setShopUrl] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState(products);
 

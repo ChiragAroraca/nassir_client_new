@@ -12,7 +12,7 @@ const VendorProducts = () => {
   const hasMore=useSelector((state)=>state.product.hasMore)
   const [currentPage, setCurrentPage] = useState(1);
   const [searchValue, setSearchValue] = useState("");
-  const [parPage, setParPage] = useState(50);
+  const [parPage, setParPage] = useState(10);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [minSimilarity, setMinSimilarity] = useState("");

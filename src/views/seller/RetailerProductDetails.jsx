@@ -27,7 +27,7 @@ const RetailerProductDetails = () => {
     try {
       const retailerId = retailer?.retail_id;
       const response = await fetch(
-        `http://localhost:5000/api/vendor-matches-score?minScore=${minScore}&retailId=${retailerId}`,
+        `https://nassir-server-new.vercel.app/api/vendor-matches-score?minScore=${minScore}&retailId=${retailerId}`,
         {
           method: "GET",
           credentials: "include",
@@ -78,7 +78,7 @@ const RetailerProductDetails = () => {
     setDescriptionError("");
 
     try {
-      const response = await fetch("http://localhost:5000/api/get-publishing-description", {
+      const response = await fetch("https://nassir-server-new.vercel.app/api/get-publishing-description", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -2,32 +2,58 @@ import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
-import { socket } from '../utils/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateCustomer, updateSellers } from '../store/Reducers/chatReducer';
+import api from '../api/api'; // Import the pre-configured Axios instance
 
 const MainLayout = () => {
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.auth);
-
-  useEffect(() => {
-    if (userInfo && userInfo.role === 'seller') {
-      socket.emit('add_seller', userInfo._id, userInfo);
-    } else {
-      socket.emit('add_admin', userInfo);
-    }
-  }, [userInfo]);
-
-  useEffect(() => {
-    socket.on('activeCustomer', (customers) => {
-      dispatch(updateCustomer(customers));
-    });
-    socket.on('activeSeller', (sellers) => {
-      dispatch(updateSellers(sellers));
-    });
-  });
-
   const [showSidebar, setShowSidebar] = useState(false);
+
+  // Function to add a seller or admin
+  const addUser = async () => {
+    if (userInfo) {
+      try {
+        if (userInfo.role === 'seller') {
+          await api.post('/addSeller', {
+            sellerId: userInfo._id,
+            userInfo,
+          });
+        } else {
+          await api.post('/addAdmin', { adminInfo: userInfo });
+        }
+      } catch (error) {
+        console.error('Error adding user:', error);
+      }
+    }
+  };
+
+  // Fetch active customers and sellers
+  const fetchActiveUsers = async () => {
+    try {
+      const customersResponse = await api.get('/getActiveCustomers');
+      dispatch(updateCustomer(customersResponse.data));
+
+      const sellersResponse = await api.get('/getActiveSellers');
+      dispatch(updateSellers(sellersResponse.data));
+    } catch (error) {
+      console.error('Error fetching active users:', error);
+    }
+  };
+
+  // Add user and fetch active users on component mount
+  useEffect(() => {
+    addUser();
+    fetchActiveUsers();
+
+    // Polling for active users (replace with WebSocket or SSE if needed)
+    const interval = setInterval(() => {
+      fetchActiveUsers();
+    }, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [userInfo, dispatch]);
 
   return (
     <div className="bg-[#cdcae9] w-full min-h-screen">

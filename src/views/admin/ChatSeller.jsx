@@ -12,8 +12,7 @@ import {
 import { Link, useParams } from 'react-router-dom';
 import { FaRegFaceGrinHearts } from 'react-icons/fa6';
 import toast from 'react-hot-toast';
-
-import { socket } from '../../utils/utils';
+import api from '../../api/api'; // Import the pre-configured Axios instance
 
 const ChatSeller = () => {
   const scrollRef = useRef();
@@ -33,43 +32,75 @@ const ChatSeller = () => {
 
   useEffect(() => {
     dispatch(get_sellers());
-  });
+  }, [dispatch]);
 
-  const send = (e) => {
+  // Function to send a message from admin to seller
+  const send = async (e) => {
     e.preventDefault();
-    dispatch(
-      send_message_seller_admin({
-        senderId: '',
-        receverId: sellerId,
+    try {
+      const response = await api.post('/sendAdminMessageToSeller', {
+        receiverId: sellerId,
         message: text,
-        senderName: 'Admin Support',
-      })
-    );
-    setText('');
+      });
+      if (response.status === 200) {
+        dispatch(
+          send_message_seller_admin({
+            senderId: '',
+            receverId: sellerId,
+            message: text,
+            senderName: 'Admin Support',
+          })
+        );
+        setText('');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message');
+    }
   };
 
+  // Fetch admin messages for the selected seller
   useEffect(() => {
-    if (sellerId) {
-      dispatch(get_admin_message(sellerId));
-    }
-  }, [sellerId]);
+    const fetchMessages = async () => {
+      if (sellerId) {
+        try {
+          const response = await api.get(`/getAdminMessages/${sellerId}`);
+          dispatch(get_admin_message(response.data));
+        } catch (error) {
+          console.error('Error fetching messages:', error);
+        }
+      }
+    };
+    fetchMessages();
+  }, [sellerId, dispatch]);
 
+  // Handle success message
   useEffect(() => {
     if (successMessage) {
-      socket.emit(
-        'send_message_admin_to_seller',
-        seller_admin_message[seller_admin_message.length - 1]
-      );
       dispatch(messageClear());
     }
-  }, [successMessage]);
+  }, [successMessage, dispatch]);
 
+  // Polling for new messages (replace with WebSocket or SSE if needed)
   useEffect(() => {
-    socket.on('receved_seller_message', (msg) => {
-      setReceverMessage(msg);
-    });
-  }, []);
+    const interval = setInterval(async () => {
+      if (sellerId) {
+        try {
+          const response = await api.get(`/getAdminMessages/${sellerId}`);
+          const newMessages = response.data;
+          if (newMessages.length > seller_admin_message.length) {
+            setReceverMessage(newMessages[newMessages.length - 1]);
+          }
+        } catch (error) {
+          console.error('Error polling messages:', error);
+        }
+      }
+    }, 5000); // Poll every 5 seconds
 
+    return () => clearInterval(interval);
+  }, [sellerId, seller_admin_message]);
+
+  // Handle received messages
   useEffect(() => {
     if (receverMessage) {
       if (
@@ -82,8 +113,9 @@ const ChatSeller = () => {
         dispatch(messageClear());
       }
     }
-  }, [receverMessage]);
+  }, [receverMessage, sellerId, dispatch]);
 
+  // Scroll to the latest message
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [seller_admin_message]);
