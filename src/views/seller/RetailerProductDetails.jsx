@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const RetailerProductDetails = () => {
   const location = useLocation();
@@ -24,6 +26,7 @@ const RetailerProductDetails = () => {
   }, [retailer]);
 
   const fetchRetailerMatches = async (minScore) => {
+    console.log('DATA<><>')
     try {
       const retailerId = retailer?.retail_id;
       const response = await fetch(
@@ -33,15 +36,23 @@ const RetailerProductDetails = () => {
           credentials: "include",
         }
       );
+
       const data = await response.json();
       if (data.success) {
         setFilteredMatches(data.data);
-        setShopUrls(data?.lowSimilarityMatches); // Assuming this is an array of shop URLs
+        setShopUrls(data?.lowSimilarityMatches || []);
       } else {
+        // Handle the specific error message
+        if (data.message === "No matches found with the specified similarity score.") {
+          toast.error(data.message); // Show toast for the specific error
+        } else {
+          toast.error("Failed to fetch matches. Please try again."); // Generic error toast
+        }
         console.error(data.message);
       }
     } catch (error) {
       console.error("Error fetching retailer matches:", error);
+      toast.error("An unexpected error occurred. Please try again."); // Show toast for network or server errors
     }
   };
 
@@ -85,7 +96,7 @@ const RetailerProductDetails = () => {
         },
         body: JSON.stringify({
           desc: retailer?.retailerDetails?.body_html,
-          prompt: prompt?prompt:'I want a short and accurate description in about 100 words.',
+          prompt: prompt || "I want a short and accurate description in about 100 words.",
         }),
         credentials: "include",
       });
@@ -95,10 +106,12 @@ const RetailerProductDetails = () => {
         setProductDescription(data.generatedDescription);
       } else {
         setDescriptionError(data.error || "Failed to generate description.");
+        toast.error(data.error || "Failed to generate description.");
       }
     } catch (error) {
       console.error("Error fetching description:", error);
       setDescriptionError("Server error while generating description.");
+      toast.error("Server error while generating description.");
     } finally {
       setIsLoadingDescription(false);
     }
@@ -106,7 +119,7 @@ const RetailerProductDetails = () => {
 
   const handleApproveAndPublish = () => {
     // dispatch(publish_product_to_shop(retailer?._id, selectedShop));
-    alert(`Product Approved and Published to ${selectedShop}`);
+    toast.success(`Product Approved and Published to ${selectedShop}`);
     closeModal();
   };
 
@@ -195,7 +208,7 @@ const RetailerProductDetails = () => {
                       Generate Description
                     </button>
                     <button
-                      onClick={() => handleApproveAndPublish()}
+                      onClick={handleApproveAndPublish}
                       className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition"
                     >
                       Publish
@@ -281,6 +294,19 @@ const RetailerProductDetails = () => {
           </div>
         </div>
       )}
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };

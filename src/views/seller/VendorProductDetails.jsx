@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const VendorProductDetails = () => {
   const location = useLocation();
@@ -33,15 +35,24 @@ const VendorProductDetails = () => {
           credentials: "include",
         }
       );
+
       const data = await response.json();
+
       if (data.success) {
         setFilteredMatches(data.data);
-        setShopUrls(data?.lowSimilarityMatches); // Assuming this is an array of objects
+        setShopUrls(data?.lowSimilarityMatches || []);
       } else {
+        // Handle the specific error message
+        if (data.message === "No matches found with the specified similarity score.") {
+          toast.error(data.message); // Show toast for the specific error
+        } else {
+          toast.error("Failed to fetch matches. Please try again."); // Generic error toast
+        }
         console.error(data.message);
       }
     } catch (error) {
       console.error("Error fetching vendor matches:", error);
+      toast.error("An unexpected error occurred. Please try again."); // Show toast for network or server errors
     }
   };
 
@@ -86,7 +97,7 @@ const VendorProductDetails = () => {
         },
         body: JSON.stringify({
           desc: vendor?.vendorDetails?.body_html,
-          prompt: prompt?prompt:'I want a short and accurate description in about 100 words.',
+          prompt: prompt || "I want a short and accurate description in about 100 words.",
         }),
         credentials: "include",
       });
@@ -96,10 +107,12 @@ const VendorProductDetails = () => {
         setProductDescription(data.generatedDescription);
       } else {
         setDescriptionError(data.error || "Failed to generate description.");
+        toast.error(data.error || "Failed to generate description.");
       }
     } catch (error) {
       console.error("Error fetching description:", error);
       setDescriptionError("Server error while generating description.");
+      toast.error("Server error while generating description.");
     } finally {
       setIsLoadingDescription(false);
     }
@@ -107,7 +120,7 @@ const VendorProductDetails = () => {
 
   const handleApproveAndPublish = () => {
     // dispatch(publish_product_to_shop(vendor?._id, selectedShop));
-    alert(`Product Approved and Published to ${selectedShop}`);
+    toast.success(`Product Approved and Published to ${selectedShop}`);
     closeModal();
   };
 
@@ -196,7 +209,7 @@ const VendorProductDetails = () => {
                       Generate Description
                     </button>
                     <button
-                      onClick={() => handleApproveAndPublish()}
+                      onClick={handleApproveAndPublish}
                       className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition"
                     >
                       Publish
@@ -211,77 +224,90 @@ const VendorProductDetails = () => {
 
       {/* Modal */}
       {showModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-800">Product Description Generator</h2>
-        <button
-          onClick={closeModal}
-          className="text-gray-500 hover:text-gray-800"
-          aria-label="Close modal"
-        >
-          &times;
-        </button>
-      </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-800">Product Description Generator</h2>
+              <button
+                onClick={closeModal}
+                className="text-gray-500 hover:text-gray-800"
+                aria-label="Close modal"
+              >
+                &times;
+              </button>
+            </div>
 
-      {/* Display Word Count of vendor?.body_html */}
-      <div className="mb-4">
-        <p className="text-sm text-gray-600">
-          Word count in product's previous description:{" "}
-          <strong>{vendor?.vendorDetails?.body_html?.split(/\s+/).filter(Boolean).length || 0}</strong>
-        </p>
-      </div>
+            {/* Display Word Count of vendor?.body_html */}
+            <div className="mb-4">
+              <p className="text-sm text-gray-600">
+                Word count in product's previous description:{" "}
+                <strong>{vendor?.vendorDetails?.body_html?.split(/\s+/).filter(Boolean).length || 0}</strong>
+              </p>
+            </div>
 
-      <input
-        type="text"
-        placeholder="Enter prompt for new description"
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        className="w-full p-3 border rounded-lg text-black mb-4"
-        disabled={isLoadingDescription || productDescription}
-      />
+            <input
+              type="text"
+              placeholder="Enter prompt for new description"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="w-full p-3 border rounded-lg text-black mb-4"
+              disabled={isLoadingDescription || productDescription}
+            />
 
-      {!productDescription && (
-        <button
-          onClick={fetchDescription}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition mb-4 w-full"
-          disabled={isLoadingDescription}
-        >
-          {isLoadingDescription ? "Generating..." : "Generate Description"}
-        </button>
-      )}
+            {!productDescription && (
+              <button
+                onClick={fetchDescription}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition mb-4 w-full"
+                disabled={isLoadingDescription}
+              >
+                {isLoadingDescription ? "Generating..." : "Generate Description"}
+              </button>
+            )}
 
-      {descriptionError && (
-        <p className="text-red-600 text-sm mb-4">{descriptionError}</p>
-      )}
+            {descriptionError && (
+              <p className="text-red-600 text-sm mb-4">{descriptionError}</p>
+            )}
 
-      {productDescription && (
-        <>
-          <textarea
-            rows={6}
-            value={productDescription}
-            onChange={(e) => setProductDescription(e.target.value)}
-            className="w-full p-3 border rounded-lg text-black mb-4"
-          />
-          <div className="flex justify-between">
-            <button
-              onClick={handleApproveAndPublish}
-              className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition"
-            >
-              Approve and Publish
-            </button>
-            <button
-              onClick={closeModal}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-            >
-              Close
-            </button>
+            {productDescription && (
+              <>
+                <textarea
+                  rows={6}
+                  value={productDescription}
+                  onChange={(e) => setProductDescription(e.target.value)}
+                  className="w-full p-3 border rounded-lg text-black mb-4"
+                />
+                <div className="flex justify-between">
+                  <button
+                    onClick={handleApproveAndPublish}
+                    className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition"
+                  >
+                    Approve and Publish
+                  </button>
+                  <button
+                    onClick={closeModal}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                  >
+                    Close
+                  </button>
+                </div>
+              </>
+            )}
           </div>
-        </>
+        </div>
       )}
-    </div>
-  </div>
-)}
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };
