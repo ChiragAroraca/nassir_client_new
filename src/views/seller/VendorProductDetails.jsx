@@ -18,6 +18,7 @@ const VendorProductDetails = () => {
   const [prompt, setPrompt] = useState("");
   const [isLoadingDescription, setIsLoadingDescription] = useState(false);
   const [descriptionError, setDescriptionError] = useState("");
+  let preFetchedMinScore
 
   useEffect(() => {
     if (vendor?.matches) {
@@ -25,11 +26,23 @@ const VendorProductDetails = () => {
     }
   }, [vendor]);
 
+  const preFetchMinScoreReloaded=async()=>{
+    const score= await localStorage.getItem('vendorProductMinSimilarity');
+    preFetchedMinScore=await JSON.parse(score)
+    if(preFetchedMinScore){
+      fetchVendorMatches()
+      setMinSimilarity(preFetchedMinScore*100)
+    }
+  }
+  useEffect(()=>{
+    preFetchMinScoreReloaded()
+  },[])
+
   const fetchVendorMatches = async (minScore) => {
     try {
       const vendorId = vendor?.vendor_id;
       const response = await fetch(
-        `https://nassir-server-new.vercel.app/api/retailer-matches-score?vendorId=${vendorId}&minScore=${minScore}`,
+        `https://nassir-server-new.vercel.app/api/retailer-matches-score?vendorId=${vendorId}&minScore=${preFetchedMinScore?preFetchedMinScore:minScore}`,
         {
           method: "GET",
           credentials: "include",
@@ -41,6 +54,9 @@ const VendorProductDetails = () => {
       if (data.success) {
         setFilteredMatches(data.data);
         setShopUrls(data?.lowSimilarityMatches || []);
+        if(minScore){
+        toast.success('Products fetched according to similarity')
+      }
       } else {
         // Handle the specific error message
         if (data.message === "No matches found with the specified similarity score.") {
@@ -58,6 +74,7 @@ const VendorProductDetails = () => {
 
   const handleFilter = () => {
     const minScore = parseFloat(minSimilarity) / 100;
+    localStorage.setItem('vendorProductMinSimilarity', minScore.toString());
     fetchVendorMatches(minScore);
   };
 
@@ -66,7 +83,10 @@ const VendorProductDetails = () => {
     setFilteredMatches(vendor?.matches || []);
   };
 
-  const goBack = () => navigate(-1);
+  const goBack = () => {
+    navigate(-1)
+    localStorage.removeItem('vendorProductMinSimilarity');
+  };
 
   const openModal = (shop) => {
     setSelectedShop(shop);

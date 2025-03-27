@@ -8,7 +8,7 @@ const RetailerProductDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const retailer = location.state?.retailer;
-
+  
   const [minSimilarity, setMinSimilarity] = useState(0);
   const [filteredMatches, setFilteredMatches] = useState(retailer?.matches || []);
   const [shopUrls, setShopUrls] = useState([]);
@@ -18,6 +18,7 @@ const RetailerProductDetails = () => {
   const [prompt, setPrompt] = useState("");
   const [isLoadingDescription, setIsLoadingDescription] = useState(false);
   const [descriptionError, setDescriptionError] = useState("");
+  let preFetchedMinScore;
 
   useEffect(() => {
     if (retailer?.matches) {
@@ -25,12 +26,24 @@ const RetailerProductDetails = () => {
     }
   }, [retailer]);
 
+  const preFetchMinScoreReloaded = async () => {
+    const score = await localStorage.getItem('retailerProductMinSimilarity');
+    preFetchedMinScore = await JSON.parse(score);
+    if (preFetchedMinScore) {
+      fetchRetailerMatches();
+      setMinSimilarity(preFetchedMinScore * 100);
+    }
+  };
+
+  useEffect(() => {
+    preFetchMinScoreReloaded();
+  }, []);
+
   const fetchRetailerMatches = async (minScore) => {
-    console.log('DATA<><>')
     try {
       const retailerId = retailer?.retail_id;
       const response = await fetch(
-        `https://nassir-server-new.vercel.app/api/vendor-matches-score?minScore=${minScore}&retailId=${retailerId}`,
+        `https://nassir-server-new.vercel.app/api/vendor-matches-score?retailId=${retailerId}&minScore=${preFetchedMinScore ? preFetchedMinScore : minScore}`,
         {
           method: "GET",
           credentials: "include",
@@ -41,32 +54,39 @@ const RetailerProductDetails = () => {
       if (data.success) {
         setFilteredMatches(data.data);
         setShopUrls(data?.lowSimilarityMatches || []);
+          if(minScore){
+                toast.success('Products fetched according to similarity')
+              }
       } else {
-        // Handle the specific error message
         if (data.message === "No matches found with the specified similarity score.") {
-          toast.error(data.message); // Show toast for the specific error
+          toast.error(data.message);
         } else {
-          toast.error("Failed to fetch matches. Please try again."); // Generic error toast
+          toast.error("Failed to fetch matches. Please try again.");
         }
         console.error(data.message);
       }
     } catch (error) {
       console.error("Error fetching retailer matches:", error);
-      toast.error("An unexpected error occurred. Please try again."); // Show toast for network or server errors
+      toast.error("An unexpected error occurred. Please try again.");
     }
   };
 
   const handleFilter = () => {
     const minScore = parseFloat(minSimilarity) / 100;
+    localStorage.setItem('retailerProductMinSimilarity', minScore.toString());
     fetchRetailerMatches(minScore);
   };
 
   const handleResetFilter = () => {
     setMinSimilarity(0);
     setFilteredMatches(retailer?.matches || []);
+    localStorage.removeItem('retailerProductMinSimilarity');
   };
 
-  const goBack = () => navigate(-1);
+  const goBack = () => {
+    navigate(-1);
+    localStorage.removeItem('retailerProductMinSimilarity');
+  };
 
   const openModal = (shop) => {
     setSelectedShop(shop);
@@ -118,7 +138,6 @@ const RetailerProductDetails = () => {
   };
 
   const handleApproveAndPublish = () => {
-    // dispatch(publish_product_to_shop(retailer?._id, selectedShop));
     toast.success(`Product Approved and Published to ${selectedShop}`);
     closeModal();
   };
@@ -236,7 +255,6 @@ const RetailerProductDetails = () => {
               </button>
             </div>
 
-            {/* Display Word Count of retailer?.retailerDetails?.body_html */}
             <div className="mb-4">
               <p className="text-sm text-gray-600">
                 Word count in product's previous description:{" "}
