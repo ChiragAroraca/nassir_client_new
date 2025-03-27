@@ -49,7 +49,7 @@ const RetailerProductDetails = () => {
     try {
       const retailerId = retailer?.retail_id;
       const response = await fetch(
-        `http://localhost:5000/api/vendor-matches-score?retailId=${retailerId}&minScore=${preFetchedMinScore ? preFetchedMinScore : minScore}`,
+        `https://nassir-server-new.vercel.app/api/vendor-matches-score?retailId=${retailerId}&minScore=${preFetchedMinScore ? preFetchedMinScore : minScore}`,
         {
           method: "GET",
           credentials: "include",
@@ -160,7 +160,7 @@ const RetailerProductDetails = () => {
 
   const handleGetItem = async (item) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/vendor-product?id=${item.vendor_id}`, {
+      const response = await fetch(`https://nassir-server-new.vercel.app/api/vendor-product?id=${item.vendor_id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -205,7 +205,7 @@ const RetailerProductDetails = () => {
       const vendorProductIds = selectedItems.map(item => item.vendor_id);
       const retailerId = retailer?.retail_id;
 
-      const response = await fetch('http://localhost:5000/api/create-vendor-comparision-report', {
+      const response = await fetch('https://nassir-server-new.vercel.app/api/create-vendor-comparision-report', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
