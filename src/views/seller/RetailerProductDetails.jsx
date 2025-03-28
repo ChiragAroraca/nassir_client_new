@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const RetailerProductDetails = () => {
+  const url=process.env.REACT_APP_SERVER_URL
   const location = useLocation();
   const navigate = useNavigate();
   const retailer = location.state?.retailer;
@@ -49,7 +50,7 @@ const RetailerProductDetails = () => {
     try {
       const retailerId = retailer?.retail_id;
       const response = await fetch(
-        `https://nassir-server-new.vercel.app/api/vendor-matches-score?retailId=${retailerId}&minScore=${preFetchedMinScore ? preFetchedMinScore : minScore}`,
+        `${url}/api/vendor-matches-score?retailId=${retailerId}&minScore=${preFetchedMinScore ? preFetchedMinScore : minScore}`,
         {
           method: "GET",
           credentials: "include",
@@ -121,7 +122,7 @@ const RetailerProductDetails = () => {
     setDescriptionError("");
 
     try {
-      const response = await fetch("https://nassir-server-new.vercel.app/api/get-publishing-description", {
+      const response = await fetch(`${url}/api/get-publishing-description`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -160,7 +161,7 @@ const RetailerProductDetails = () => {
 
   const handleGetItem = async (item) => {
     try {
-      const response = await fetch(`https://nassir-server-new.vercel.app/api/vendor-product?id=${item.vendor_id}`, {
+      const response = await fetch(`${url}/api/vendor-product?id=${item.vendor_id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -205,7 +206,7 @@ const RetailerProductDetails = () => {
       const vendorProductIds = selectedItems.map(item => item.vendor_id);
       const retailerId = retailer?.retail_id;
 
-      const response = await fetch('https://nassir-server-new.vercel.app/api/create-vendor-comparision-report', {
+      const response = await fetch(`${url}/api/create-vendor-comparision-report`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -306,6 +307,14 @@ const RetailerProductDetails = () => {
                 <h3 className="font-semibold">{item?.vendor_title}</h3>
                 <p><strong>ID:</strong> {item?.vendor_id?.$numberLong || item?.vendor_id}</p>
                 <p><strong>Score:</strong> {(item?.similarity * 100).toFixed(2)}%</p>
+                {item?.vendorVariants?.map((variant)=>{
+                  return (
+                    <div className="py-4">
+                      <p><strong>Title:</strong> {variant?.title || 'Undefined'}</p>
+                      <p><strong>SKU:</strong> {variant?.sku || 'Undefined'}</p>
+                    </div>
+                  )
+                })}
               </div>
             ))}
           </div>

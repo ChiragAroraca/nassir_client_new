@@ -5,22 +5,21 @@ import { get_vendor_products } from "../../store/Reducers/productReducer";
 import Pagination from "../Pagination";
 import { useNavigate } from "react-router-dom";
 
-
 const VendorProducts = () => {
   const dispatch = useDispatch();
   const { products } = useSelector((state) => state.product);
-  const hasMore=useSelector((state)=>state.product.hasMore)
+  const hasMore = useSelector((state) => state.product.hasMore);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchValue, setSearchValue] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // For actual API search
   const [parPage, setParPage] = useState(10);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [minSimilarity, setMinSimilarity] = useState("");
   const [filteredMatches, setFilteredMatches] = useState([]);
   const [shopUrl, setShopUrl] = useState(null);
-  const [filteredProducts, setFilteredProducts] = useState(products); // State for filtered products
+  const [filteredProducts, setFilteredProducts] = useState(products);
   const navigate = useNavigate();
-
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -28,22 +27,24 @@ const VendorProducts = () => {
       get_vendor_products({
         parPage: parseInt(parPage),
         page: parseInt(currentPage),
-        searchValue,
+        searchValue: searchTerm,
       })
     );
-  }, [currentPage, parPage, searchValue, dispatch]);
+  }, [currentPage, parPage, searchTerm, dispatch]);
 
   useEffect(() => {
-    // Filter products based on the selected shop URL
     if (shopUrl) {
       const filtered = products.filter(product => product?.vendorDetails?.shopURL === shopUrl);
       setFilteredProducts(filtered);
     } else {
-      setFilteredProducts(products); // Reset to all products if no shop URL is selected
+      setFilteredProducts(products);
     }
   }, [shopUrl, products]);
 
-
+  const handleSearch = () => {
+    setSearchTerm(searchValue);
+    setCurrentPage(1);
+  };
 
   const handleRowClick = (vendor) => {
     navigate(`/vendor-product/${vendor.vendor_id?.$numberLong || vendor.vendor_id}`, {
@@ -53,6 +54,7 @@ const VendorProducts = () => {
       },
     });
   };
+
   const openModal = (vendor) => {
     setSelectedVendor(vendor);
     setFilteredMatches(vendor.matches || []);
@@ -67,16 +69,15 @@ const VendorProducts = () => {
 
   const handleFilter = () => {
     if (selectedVendor) {
-      const minScore = parseFloat(minSimilarity) / 100; // Convert percentage to decimal
+      const minScore = parseFloat(minSimilarity) / 100;
       const matches = selectedVendor.matches.filter(item => item.similarity >= minScore);
       setFilteredMatches(matches);
     }
   };
 
-
   const clearShopUrl = () => {
-    setShopUrl(null); // Clear the selected shop URL
-    setFilteredProducts(products); // Reset to all products
+    setShopUrl(null);
+    setFilteredProducts(products);
   };
 
   return (
@@ -88,7 +89,9 @@ const VendorProducts = () => {
           setCurrentPage={setCurrentPage}
           setSearchValue={setSearchValue}
           searchValue={searchValue}
+          onSearch={handleSearch}
         />
+        
         <div className="flex items-center justify-center mb-4">
           {shopUrl && (
             <div className="flex items-center ml-4 bg-gray-200 text-gray-800 rounded-full px-3 py-1">
@@ -99,9 +102,10 @@ const VendorProducts = () => {
             </div>
           )}
         </div>
+
         <div className="relative overflow-x-auto mt-5">
           <table className="w-full text-sm text-left text-gray-800">
-            <thead className="text-sm uppercase border-b border -gray-300 bg-gray-100">
+            <thead className="text-sm uppercase border-b border-gray-300 bg-gray-100">
               <tr>
                 <th scope="col" className="py-3 px-4">Vendor Product ID</th>
                 <th scope="col" className="py-3 px-4" style={{ width: '50%' }}>Details</th>
@@ -110,15 +114,21 @@ const VendorProducts = () => {
             </thead>
             <tbody>
               {filteredProducts?.map((vendor, i) => (
-               <tr
-               key={i}
-               className="border-b border-gray-300 cursor-pointer hover:bg-gray-200 transition"
-               onClick={() => handleRowClick(vendor)}
-             >
+                <tr
+                  key={i}
+                  className="border-b border-gray-300 cursor-pointer hover:bg-gray-200 transition"
+                  onClick={() => handleRowClick(vendor)}
+                >
                   <td className="py-3 px-4 font-medium whitespace-nowrap">
                     <p>
                       <strong>ID:</strong> {vendor.vendor_id?.$numberLong || vendor.vendor_id}
                     </p>
+                    {vendor?.vendorDetails?.variants?.map((variant, idx) => (
+                      <div key={idx} className="py-3">
+                        <p><strong>Title:</strong> {variant?.title}</p>
+                        <p><strong>SKU:</strong> {variant?.sku || 'Undefined'}</p>
+                      </div>
+                    ))}
                   </td>
                   <td className="py-3 px-4 font-medium" style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal' }}>
                     <p>
@@ -141,10 +151,10 @@ const VendorProducts = () => {
                   <td className="py-3 px-4 font-medium whitespace-nowrap">
                     <a 
                       href={vendor?.vendorDetails?.shopURL}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                      }}
+                      onClick={(e) => e.stopPropagation()}
                       className="text-blue-600 hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       {vendor?.vendorDetails?.shopURL}
                     </a>
@@ -169,7 +179,7 @@ const VendorProducts = () => {
       {isModalOpen && selectedVendor && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="w-3/4 md:w-1/2 lg:w-1/3 bg-white rounded-lg p-6 shadow-lg relative max-h-[80vh] overflow-y-auto">
-            <button className="absolute top-4 right-6 text-gray-600 text-xl" onClick={closeModal}> ✖</button>
+            <button className="absolute top-4 right-6 text-gray-600 text-xl" onClick={closeModal}>✖</button>
             <h5 className="text-sm pr-10 font-bold text-gray-800 mb-4">Retailer Products Matching {selectedVendor.vendor_title}</h5>
             <div className="mb-4 relative">
               <input

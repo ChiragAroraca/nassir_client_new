@@ -13,14 +13,19 @@ const RetailerProducts = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchValue, setSearchValue] = useState('');
+  const [searchTerm, setSearchTerm] = useState(''); // For actual API search
   const [parPage, setParPage] = useState(10);
   const [shopUrl, setShopUrl] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState(products);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    dispatch(get_retailer_products({ parPage: parseInt(parPage), page: parseInt(currentPage), searchValue }));
-  }, [searchValue, currentPage, parPage, dispatch]);
+    dispatch(get_retailer_products({ 
+      parPage: parseInt(parPage), 
+      page: parseInt(currentPage), 
+      searchValue: searchTerm 
+    }));
+  }, [searchTerm, currentPage, parPage, dispatch]);
 
   useEffect(() => {
     if (shopUrl) {
@@ -31,16 +36,17 @@ const RetailerProducts = () => {
     }
   }, [shopUrl, products]);
 
+  const handleSearch = () => {
+    setSearchTerm(searchValue);
+    setCurrentPage(1);
+  };
 
   const clearShopUrl = () => {
     setShopUrl(null);
     setFilteredProducts(products);
   };
 
-  // Handle row click to navigate to detail page
   const handleRowClick = (retailer) => {
-    console.log(retailer,'RETAILER<><><.');
-    
     navigate(`/retailer-product/${retailer.retail_id?.$numberLong || retailer.retail_id}`, {
       state: {
         retailer,
@@ -57,7 +63,8 @@ const RetailerProducts = () => {
           setParPage={setParPage}
           setCurrentPage={setCurrentPage}
           setSearchValue={setSearchValue}
-          searchValue={searchValue} 
+          searchValue={searchValue}
+          onSearch={handleSearch}
         />
 
         <div className="flex items-center mb-4">
@@ -91,6 +98,12 @@ const RetailerProducts = () => {
                     <p>
                       <strong>ID:</strong> {retailer.retail_id?.$numberLong || retailer.retail_id}
                     </p>
+                    {retailer?.retailerDetails?.variants?.map((variant, idx) => (
+                      <div key={idx} className="py-3">
+                        <p><strong>Title:</strong> {variant?.title}</p>
+                        <p><strong>SKU:</strong> {variant?.sku || 'Undefined'}</p>
+                      </div>
+                    ))}
                   </td>
                   <td className="py-3 px-4 font-medium" style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal' }}>
                     <p>
@@ -113,10 +126,10 @@ const RetailerProducts = () => {
                   <td className="py-3 px-4 font-medium whitespace-nowrap">
                     <a
                       href={retailer?.retailerDetails?.shopURL}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                      }}
+                      onClick={(e) => e.stopPropagation()}
                       className="text-blue-600 hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       {retailer?.retailerDetails?.shopURL}
                     </a>

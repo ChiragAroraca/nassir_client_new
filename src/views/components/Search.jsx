@@ -1,7 +1,11 @@
 import React from 'react';
 
-const Search = ({ setParPage, setSearchValue, searchValue,setCurrentPage=()=>{} }) => {
-  
+const Search = ({ setParPage, setSearchValue, searchValue, setCurrentPage = () => {}, onSearch }) => {
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      onSearch(); // Trigger search only when Enter is pressed
+    }
+  };
 
   return (
     <div className="flex justify-between items-center">
@@ -15,14 +19,15 @@ const Search = ({ setParPage, setSearchValue, searchValue,setCurrentPage=()=>{} 
       </select>
       <input
         onChange={(e) => {
-          setCurrentPage(1)
-          setSearchValue(e.target.value)}}
+          setCurrentPage(1);
+          setSearchValue(e.target.value);
+        }}
+        onKeyDown={handleKeyDown}
         value={searchValue}
         className="px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#fff] placeholder-white"
         type="text"
-        placeholder="Search"
+        placeholder="Search (press Enter)"
       />
-
     </div>
   );
 };
