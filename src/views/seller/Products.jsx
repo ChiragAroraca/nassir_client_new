@@ -9,7 +9,7 @@ import { get_products } from '../../store/Reducers/productReducer';
 const Products = () => {
   const dispatch = useDispatch();
   const { products, totalProduct } = useSelector((state) => state.product);
-
+  const [searchTerm,setSearchTerm]=useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchValue, setSearchValue] = useState('');
   const [parPage, setParPage] = useState(50);
@@ -21,7 +21,12 @@ const Products = () => {
       searchValue,
     };
     dispatch(get_products(obj));
-  }, [searchValue, currentPage, parPage]);
+  }, [searchTerm,currentPage, parPage]);
+
+  const handleSearch = () => {
+    setSearchTerm(searchValue);
+    setCurrentPage(1);
+  };
 
   return (
     <div className="p-6 lg:p-10 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 text-white rounded-lg shadow-lg">
@@ -32,6 +37,7 @@ const Products = () => {
           setParPage={setParPage}
           setSearchValue={setSearchValue}
           searchValue={searchValue}
+          onSearch={handleSearch}
         />
 
         <div className="relative overflow-x-auto mt-5">
@@ -40,24 +46,24 @@ const Products = () => {
               <tr>
                 <th scope="col" className="py-3 px-4">ID</th>
                 <th scope="col" className="py-3 px-4">Vendor Product</th>
-                <th scope="col" className="py-3 px-4">Retailer Product</th>
+                {/* <th scope="col" className="py-3 px-4">Retailer Product</th>
                 <th scope="col" className="py-3 px-4">Similarity Score</th>
-                <th scope="col" className="py-3 px-4">Published Shops</th>
+                <th scope="col" className="py-3 px-4">Published Shops</th> */}
               </tr>
             </thead>
 
             <tbody>
-              {products.map((d, i) => (
+              {products?.map((d, i) => (
                 <tr key={i} className="border-b border-gray-300">
-                  <td className="py-3 px-4 font-medium whitespace-nowrap">{d._id}</td>
+                  <td className="py-3 px-4 font-medium whitespace-nowrap">{d?._id}</td>
 
                   {/* Vendor Product */}
                   <td className="py-3 px-4 font-medium whitespace-nowrap">
                     <div>
-                      <p><strong>ID:</strong> {d.vendorProduct._id}</p>
-                      <p><strong>Title:</strong> {d.vendorProduct.title}</p>
-                      <p><strong>Vendor:</strong> {d.vendorProduct.vendor}</p>
-                      <p><strong>Price:</strong> ${d.vendorProduct.variants[0]?.price}</p>
+                      <p><strong>ID:</strong> {d?.vendorProduct?._id}</p>
+                      <p><strong>Title:</strong> {d?.vendorProduct?.title}</p>
+                      <p><strong>Vendor:</strong> {d?.vendorProduct?.vendor}</p>
+                      <p><strong>Price:</strong> ${d?.vendorProduct?.variants[0]?.price}</p>
                       <img
                         className="w-[80px] h-[80px] mt-2 object-cover rounded border"
                         src={d.vendorProduct.images[0]?.src}
@@ -67,7 +73,7 @@ const Products = () => {
                   </td>
 
                   {/* Retailer Product */}
-                  <td className="py-3 px-4 font-medium whitespace-nowrap">
+                  {/* <td className="py-3 px-4 font-medium whitespace-nowrap">
                     {d.retailerProduct ? (
                       <div>
                         <p><strong>ID:</strong> {d.retailerProduct._id}</p>
@@ -78,15 +84,15 @@ const Products = () => {
                     ) : (
                       <p>No Retailer Product</p>
                     )}
-                  </td>
+                  </td> */}
 
                   {/* Similarity Score */}
-                  <td className="py-3 px-4 font-medium whitespace-nowrap">
+                  {/* <td className="py-3 px-4 font-medium whitespace-nowrap">
                     <p>{d.similarityScore?.toFixed(2)}</p>
-                  </td>
+                  </td> */}
 
                   {/* Published Shops */}
-                  <td className="py-3 px-4 font-medium whitespace-nowrap">
+                  {/* <td className="py-3 px-4 font-medium whitespace-nowrap">
                     {d.publishedRetailShops.length > 0 ? (
                       <ul>
                         {d.publishedRetailShops.map((shop, index) => (
@@ -96,7 +102,7 @@ const Products = () => {
                     ) : (
                       <p>Not Published</p>
                     )}
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>
