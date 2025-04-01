@@ -6,4 +6,3 @@ export const overrideStyle = {
   justifyContent: 'center',
   alignItems: 'center',
 };
-export const socket = io(`${process.env.REACT_APP_SERVER_URL}`);

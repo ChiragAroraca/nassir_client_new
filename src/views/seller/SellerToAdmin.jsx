@@ -9,7 +9,7 @@ import {
   messageClear,
 } from '../../store/Reducers/chatReducer';
 
-import { socket } from '../../utils/utils';
+// import { socket } from '../../utils/utils';
 
 const SellerToAdmin = () => {
   const scrollRef = useRef();
@@ -42,21 +42,21 @@ const SellerToAdmin = () => {
     setText('');
   };
 
-  useEffect(() => {
-    socket.on('receved_admin_message', (msg) => {
-      dispatch(updateAdminMessage(msg));
-    });
-  }, []);
+  // useEffect(() => {
+  //   socket.on('receved_admin_message', (msg) => {
+  //     dispatch(updateAdminMessage(msg));
+  //   });
+  // }, []);
 
-  useEffect(() => {
-    if (successMessage) {
-      socket.emit(
-        'send_message_seller_to_admin',
-        seller_admin_message[seller_admin_message.length - 1]
-      );
-      dispatch(messageClear());
-    }
-  }, [successMessage]);
+  // useEffect(() => {
+  //   if (successMessage) {
+  //     socket.emit(
+  //       'send_message_seller_to_admin',
+  //       seller_admin_message[seller_admin_message.length - 1]
+  //     );
+  //     dispatch(messageClear());
+  //   }
+  // }, [successMessage]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });

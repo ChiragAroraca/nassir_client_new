@@ -48,11 +48,11 @@ const MainLayout = () => {
     fetchActiveUsers();
 
     // Polling for active users (replace with WebSocket or SSE if needed)
-    const interval = setInterval(() => {
-      fetchActiveUsers();
-    }, 5000); // Poll every 5 seconds
+    // const interval = setInterval(() => {
+    //   fetchActiveUsers();
+    // }, 5000); // Poll every 5 seconds
 
-    return () => clearInterval(interval);
+    // return () => clearInterval(interval);
   }, [userInfo, dispatch]);
 
   return (
