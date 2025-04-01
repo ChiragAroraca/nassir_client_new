@@ -11,7 +11,7 @@ import toast from 'react-hot-toast';
 const AddProduct = () => {
   const dispatch = useDispatch();
   const { categorys } = useSelector((state) => state.category);
-  const { loader, successMessage, errorMessage, productMapping, shopURLs } = useSelector(
+  const { loader, successMessage, errorMessage, productMapping, vendorProduct, shopURLs } = useSelector(
     (state) => state.product
   );
 
@@ -31,16 +31,10 @@ const AddProduct = () => {
   const [images, setImages] = useState([]);
   const [imageShow, setImageShow] = useState([]);
 
-  const inputHandle = (e) => {
-    setState({
-      ...state,
-      [e.target.name]: e.target.value,
-    });
-  };
 
   useEffect(() => {
     dispatch(get_category({ searchValue: '', parPage: '', page: '' }));
-  }, []);
+  }, [vendorProduct]);
 
   useEffect(() => {
     setAllCategory(categorys);
@@ -65,16 +59,25 @@ const AddProduct = () => {
   };
 
   const publishProduct = (shopURL) => {
+    console.log("productMappingId >>", productMappingId)
     dispatch(publish_product_to_shop({ productMappingId, shopURL }));
   };
 
   useEffect(() => {
     if (successMessage) {
-      toast.success(successMessage);
+      // Make sure successMessage is a string
+      const message = typeof successMessage === 'object' ? 
+        (successMessage.message || JSON.stringify(successMessage)) : 
+        successMessage;
+      toast.success(message);
       dispatch(messageClear());
     }
     if (errorMessage) {
-      toast.error(errorMessage);
+      // Make sure errorMessage is a string
+      const message = typeof errorMessage === 'object' ? 
+        (errorMessage.message || JSON.stringify(errorMessage)) : 
+        errorMessage;
+      toast.error(message);
       dispatch(messageClear());
     }
   }, [successMessage, errorMessage]);
@@ -94,7 +97,7 @@ const AddProduct = () => {
 
         <div className="mb-6">
           <label htmlFor="productMappingId" className="block text-sm font-medium">
-            ProductMapping ID
+            Product Mapping ID OR Vendor Product ID
           </label>
           <div className="flex items-center mt-2">
             <input
@@ -114,18 +117,44 @@ const AddProduct = () => {
           </div>
         </div>
 
-        {productMapping && (
+        {productMapping && productMapping.vendorProduct && (
           <div className="mb-6">
-            <h2 className="text-xl font-semibold">Vendor Product</h2>
+            <h2 className="text-xl font-semibold">Product Details (Product Mapping)</h2>
             <div className="mt-3 space-y-2">
               <p><strong>Title:</strong> {productMapping.vendorProduct.title}</p>
               <p><strong>Vendor:</strong> {productMapping.vendorProduct.vendor}</p>
-              <p><strong>Price:</strong> ${productMapping.vendorProduct.variants[0]?.price}</p>
-              <img
-                className="w-40 h-40 mt-3 object-cover rounded border"
-                src={productMapping.vendorProduct.images[0]?.src}
-                alt="Vendor Product"
-              />
+              <p><strong>Price:</strong> ${productMapping.vendorProduct.variants && 
+                productMapping.vendorProduct.variants[0] ? 
+                productMapping.vendorProduct.variants[0].price : 'N/A'}</p>
+              {productMapping.vendorProduct.images && 
+               productMapping.vendorProduct.images[0] && (
+                <img
+                  className="w-40 h-40 mt-3 object-cover rounded border"
+                  src={productMapping.vendorProduct.images[0].src}
+                  alt="Product"
+                />
+              )}
+            </div>
+          </div>
+        )}
+
+        {!productMapping && vendorProduct && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold">Product Details (Vendor Product)</h2>
+            <div className="mt-3 space-y-2">
+              <p><strong>Title:</strong> {vendorProduct.title}</p>
+              <p><strong>Vendor:</strong> {vendorProduct.vendor}</p>
+              <p><strong>Price:</strong> ${vendorProduct.variants && 
+                vendorProduct.variants[0] ? 
+                vendorProduct.variants[0].price : 'N/A'}</p>
+              {vendorProduct.images && 
+               vendorProduct.images[0] && (
+                <img
+                  className="w-40 h-40 mt-3 object-cover rounded border"
+                  src={vendorProduct.images[0].src}
+                  alt="Product"
+                />
+              )}
             </div>
           </div>
         )}
@@ -136,10 +165,11 @@ const AddProduct = () => {
             <ul className="mt-3 space-y-2">
               {shopURLs.map((shopURL, index) => (
                 <li key={index} className="flex items-center justify-between p-3 bg-gray-100 rounded">
-                  <span>{shopURL}</span>
+                  <span>{typeof shopURL === 'string' ? shopURL : JSON.stringify(shopURL)}</span>
                   <button
                     onClick={() => publishProduct(shopURL)}
                     className="bg-blue-600 hover:bg-blue-700 transition-all text-white font-semibold rounded px-5 py-2"
+                    disabled={!productMappingId}
                   >
                     Publish
                   </button>

@@ -145,9 +145,11 @@ export const get_product_mapping = createAsyncThunk(
   async (productMappingId, { rejectWithValue }) => {
     try {
       const { data } = await api.get(`/product-mapping/${productMappingId}`);
+      console.log("data.vendorProduct")
       return {
         productMapping: data.productMapping,
         shopURLs: data.shopURLs,
+        vendorProduct: data.vendorProduct
       };
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -161,7 +163,7 @@ export const publish_product_to_shop = createAsyncThunk(
   async ({ productMappingId, shopURL }, { rejectWithValue }) => {
     try {
       const { data } = await api.post('/publish-product', {
-        productMappingId,
+        productId: productMappingId,
         shopURL,
       });
       return data.message;
@@ -251,6 +253,7 @@ export const productReducer = createSlice({
         state.loader = false;
         state.productMapping = payload.productMapping;
         state.shopURLs = payload.shopURLs;
+        state.vendorProduct = payload.vendorProduct;
       })
       .addCase(get_product_mapping.rejected, (state, { payload }) => {
         state.loader = false;

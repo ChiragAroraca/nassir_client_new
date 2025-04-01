@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { useDispatch, useSelector } from 'react-redux';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { publish_product_to_shop } from "../../store/Reducers/productReducer";
 
 const VendorProductDetails = () => {
+  const dispatch = useDispatch();
+  
   const url=process.env.REACT_APP_SERVER_URL
   const location = useLocation();
   const navigate = useNavigate();
@@ -150,8 +154,10 @@ const VendorProductDetails = () => {
     }
   };
 
-  const handleApproveAndPublish = () => {
+  const handleApproveAndPublish = (shopURL) => {
     toast.success(`Product Approved and Published`);
+    const vendorId = vendor?.vendor_id
+    dispatch(publish_product_to_shop({ vendorId, shopURL }));
     closeModal();
   };
 
@@ -339,7 +345,9 @@ const VendorProductDetails = () => {
                           Generate Description
                         </button>
                         <button
-                          onClick={handleApproveAndPublish}
+                          onClick={() => {
+                            handleApproveAndPublish(shop.shopURL);
+                          }}
                           className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition"
                         >
                           Publish
@@ -363,7 +371,7 @@ const VendorProductDetails = () => {
                         <button
                           onClick={() => {
                             setSelectedShop(shopUrl);
-                            handleApproveAndPublish();
+                            handleApproveAndPublish(shopUrl);
                           }}
                           className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition"
                         >
