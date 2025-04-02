@@ -42,6 +42,7 @@ const VendorProducts = () => {
   }, [shopUrl, products]);
 
   const handleSearch = () => {
+    console.log('SEARCHED<><><>')
     setSearchTerm(searchValue);
     setCurrentPage(1);
   };
