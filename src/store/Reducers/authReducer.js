@@ -25,13 +25,20 @@ export const seller_login = createAsyncThunk(
   async (info, { rejectWithValue, fulfillWithValue }) => {
     try {
       const { data } = await api.post('/seller-login', info, {
-        withCredentials: true,
+        withCredentials: true, // Ensure this is set
       });
-      console.log(data);
-      localStorage.setItem('accessToken', data.token);
+      
+      console.log('Login response:', data);
+      
+      // Store token in localStorage as backup
+      if (data.token) {
+        localStorage.setItem('accessToken', data.token);
+      }
+      
       return fulfillWithValue(data);
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      console.error('Login error:', error.response?.data);
+      return rejectWithValue(error.response?.data);
     }
   }
 );
@@ -40,9 +47,11 @@ export const get_user_info = createAsyncThunk(
   'auth/get_user_info',
   async (_, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.get('/get-user');
+      const { data } = await api.get('/get-user', { withCredentials: true });
+      console.log(data);
       return fulfillWithValue(data);
     } catch (error) {
+      // console.log(error.response.data)
       return rejectWithValue(error.response.data);
     }
   }
