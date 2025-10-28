@@ -40,23 +40,11 @@ export const get_user_info = createAsyncThunk(
   'auth/get_user_info',
   async (_, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const response = await fetch('https://nassir-server-new.vercel.app/api/get-user', {
-        method: 'GET',
-        credentials: 'include', // This is equivalent to withCredentials: true
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        return rejectWithValue(errorData);
-      }
-
-      const data = await response.json();
+      const { data } = await api.get('/get-user', { withCredentials: true });
       return fulfillWithValue(data);
     } catch (error) {
-      return rejectWithValue({ error: error.message || 'Network error' });
+      // console.log(error.response.data)
+      return rejectWithValue(error.response.data);
     }
   }
 );
