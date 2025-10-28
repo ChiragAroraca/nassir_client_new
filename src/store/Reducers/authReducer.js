@@ -23,7 +23,6 @@ export const admin_login = createAsyncThunk(
 export const seller_login = createAsyncThunk(
   'auth/seller_login',
   async (info, { rejectWithValue, fulfillWithValue }) => {
-    console.log(info);
     try {
       const { data } = await api.post('/seller-login', info, {
         withCredentials: true,
@@ -41,12 +40,23 @@ export const get_user_info = createAsyncThunk(
   'auth/get_user_info',
   async (_, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.get('/get-user', { withCredentials: true });
-      console.log(data);
+      const response = await fetch('https://nassir-server-new.vercel.app/api/get-user', {
+        method: 'GET',
+        credentials: 'include', // This is equivalent to withCredentials: true
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+
+      const data = await response.json();
       return fulfillWithValue(data);
     } catch (error) {
-      // console.log(error.response.data)
-      return rejectWithValue(error.response.data);
+      return rejectWithValue({ error: error.message || 'Network error' });
     }
   }
 );
