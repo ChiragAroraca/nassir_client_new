@@ -173,6 +173,55 @@ export const publish_product_to_shop = createAsyncThunk(
   }
 );
 
+export const create_retailer_product = createAsyncThunk(
+  'product/create_retailer_product',
+  async (productData, { rejectWithValue, fulfillWithValue }) => {
+    try {
+      const formData = new FormData();
+      
+      // Append text fields
+      formData.append('shopURL', productData.shopURL);
+      formData.append('title', productData.title);
+      formData.append('body_html', productData.body_html);
+      formData.append('vendor', productData.vendor);
+      formData.append('tags', productData.tags);
+      formData.append('variants', JSON.stringify(productData.variants));
+      
+      // Append image files
+      if (productData.images && productData.images.length > 0) {
+        productData.images.forEach((image, index) => {
+          formData.append('images', image);
+        });
+      }
+
+      const { data } = await api.post('/create-retailer-product', formData, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      return fulfillWithValue(data);
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { error: 'Network error occurred' });
+    }
+  }
+);
+
+export const get_retail_shops = createAsyncThunk(
+  'product/get_retail_shops',
+  async (_, { rejectWithValue, fulfillWithValue }) => {
+    try {
+      const { data } = await api.post('/get-retail-shops', {}, {
+        withCredentials: true,
+      });
+      return fulfillWithValue(data);
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to fetch retail shops');
+    }
+  }
+);
+
 
 
 // Product Reducer
@@ -183,6 +232,8 @@ export const productReducer = createSlice({
     errorMessage: '',
     loader: false,
     products: [],
+    shopsLoader: false, // Add this
+  retailShops: [], // Add this
     pagination: {
       currentPage: 1,
       itemsPerPage: 10,
@@ -270,7 +321,36 @@ export const productReducer = createSlice({
       .addCase(publish_product_to_shop.rejected, (state, { payload }) => {
         state.loader = false;
         state.errorMessage = payload || 'Failed to publish product';
-      });
+      })
+      .addCase(create_retailer_product.pending, (state) => {
+  state.loader = true;
+  state.errorMessage = '';
+  state.successMessage = '';
+})
+.addCase(create_retailer_product.fulfilled, (state, { payload }) => {
+  state.loader = false;
+  state.successMessage = payload.message;
+  // Optionally add the new product to the products array
+  if (payload.product) {
+    state.products.unshift(payload.product);
+  }
+})
+.addCase(create_retailer_product.rejected, (state, { payload }) => {
+  state.loader = false;
+  state.errorMessage = payload?.error || payload?.message || 'Failed to create product';
+})
+.addCase(get_retail_shops.pending, (state) => {
+  state.shopsLoader = true;
+})
+.addCase(get_retail_shops.fulfilled, (state, { payload }) => {
+  state.shopsLoader = false;
+  state.retailShops = payload.data?.shopUrls || payload.data?.shops || payload.shopUrls || [];
+  state.successMessage = payload.message;
+})
+.addCase(get_retail_shops.rejected, (state, { payload }) => {
+  state.shopsLoader = false;
+  state.errorMessage = payload?.error || payload?.message || 'Failed to fetch retail shops';
+})
   },  
 });
 export const { messageClear } = productReducer.actions;
