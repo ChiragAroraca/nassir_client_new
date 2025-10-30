@@ -54,234 +54,274 @@ const Profile = () => {
   };
 
   return (
-    <div className="px-2 lg:px-7 py-5">
-      <div className="w-full flex flex-wrap">
-        <div className="w-full md:w-6/12">
-          <div className="w-full p-4 bg-[#6a5fdf] rounded-md text-[#d0d2d6]">
-            <div className="flex justify-center items-center py-3">
-              {userInfo?.image ? (
-                <label
-                  htmlFor="img"
-                  className="h-[150px] w-[200px] relative p-3 cursor-pointer overflow-hidden"
-                >
-                  <img src={userInfo.image} alt="" />
-                  {loader && (
-                    <div className="bg-slate-600 absolute left-0 top-0 w-full h-full opacity-70 flex justify-center items-center z-20">
-                      <span>
-                        <FadeLoader />
-                      </span>
-                    </div>
-                  )}
-                </label>
-              ) : (
-                <label
-                  className="flex justify-center items-center flex-col h-[150px] w-[200px] cursor-pointer border border-dashed hover:border-red-500 border-[#d0d2d6] relative"
-                  htmlFor="img"
-                >
-                  <span>
-                    <FaImages />{' '}
-                  </span>
-                  <span>Select Image</span>
-                  {loader && (
-                    <div className="bg-slate-600 absolute left-0 top-0 w-full h-full opacity-70 flex justify-center items-center z-20">
-                      <span>
-                        <FadeLoader />
-                      </span>
-                    </div>
-                  )}
-                </label>
-              )}
-              <input
-                onChange={add_image}
-                type="file"
-                className="hidden"
-                id="img"
-              />
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4 lg:p-7">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-20 w-72 h-72 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
+        <div className="absolute bottom-20 left-20 w-72 h-72 bg-purple-200 rounded-full opacity-20 blur-3xl"></div>
+      </div>
 
-            <div className="px-0 md:px-5 py-2">
-              <div className="flex justify-between text-sm flex-col gap-2 p-4 bg-slate-800 rounded-md relative">
-                <span className="p-[6px] bg-yellow-500 rounded hover:shadow-lg hover:shadow-yellow-500/50 absolute right-2 top-2 cursor-pointer">
-                  <FaRegEdit />{' '}
-                </span>
-                <div className="flex gap-2">
-                  <span>Name : </span>
-                  <span>{userInfo.name}</span>
-                </div>
-                <div className="flex gap-2">
-                  <span>Email : </span>
-                  <span>{userInfo.email}</span>
-                </div>
-                <div className="flex gap-2">
-                  <span>Role : </span>
-                  <span>{userInfo.role}</span>
-                </div>
-                <div className="flex gap-2">
-                  <span>Status : </span>
-                  <span>{userInfo.status}</span>
-                </div>
-                <div className="flex gap-2">
-                  <span>Payment Account : </span>
-                  <p>
-                    {userInfo.payment === 'active' ? (
-                      <span className="bg-red-500 text-white text-xs cursor-pointer font-normal ml-2 px-2 py-0.5 rounded">
-                        {userInfo.payment}
-                      </span>
-                    ) : (
-                      <span
-                        onClick={() =>
-                          dispatch(create_stripe_connect_account())
-                        }
-                        className="bg-blue-500 text-white text-xs cursor-pointer font-normal ml-2 px-2 py-0.5 rounded"
-                      >
-                        Click Active
-                      </span>
-                    )}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="px-0 md:px-5 py-2">
-              {!userInfo?.shopInfo ? (
-                <form onSubmit={add}>
-                  <div className="flex flex-col w-full gap-1 mb-2">
-                    <label htmlFor="Shop">Shop Name</label>
-                    <input
-                      value={state.shopName}
-                      onChange={inputHandle}
-                      className="px-4 py-2 focus:border-indigo-200 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]"
-                      type="text"
-                      name="shopName"
-                      id="Shop"
-                      placeholder="Shop Name"
-                    />
-                  </div>
-
-                  <div className="flex flex-col w-full gap-1 mb-2">
-                    <label htmlFor="division">Division Name</label>
-                    <input
-                      value={state.division}
-                      onChange={inputHandle}
-                      className="px-4 py-2 focus:border-indigo-200 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]"
-                      type="text"
-                      name="division"
-                      id="division"
-                      placeholder="division Name"
-                    />
-                  </div>
-
-                  <div className="flex flex-col w-full gap-1 mb-2">
-                    <label htmlFor="district">District Name</label>
-                    <input
-                      value={state.district}
-                      onChange={inputHandle}
-                      className="px-4 py-2 focus:border-indigo-200 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]"
-                      type="text"
-                      name="district"
-                      id="district"
-                      placeholder="District Name"
-                    />
-                  </div>
-
-                  <div className="flex flex-col w-full gap-1 mb-2">
-                    <label htmlFor="sub">Sub District Name</label>
-                    <input
-                      value={state.sub_district}
-                      onChange={inputHandle}
-                      className="px-4 py-2 focus:border-indigo-200 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]"
-                      type="text"
-                      name="sub_district"
-                      id="sub"
-                      placeholder="Sub District Name"
-                    />
-                  </div>
-
-                  <button
-                    disabled={loader ? true : false}
-                    className="bg-red-500 w-[200px] hover:shadow-red-300/50 hover:shadow-lg text-white rounded-md px-7 py-2 mb-3"
-                  >
-                    {loader ? (
-                      <PropagateLoader
-                        color="#fff"
-                        cssOverride={overrideStyle}
-                      />
-                    ) : (
-                      'Save Changes'
-                    )}
-                  </button>
-                </form>
-              ) : (
-                <div className="flex justify-between text-sm flex-col gap-2 p-4 bg-slate-800 rounded-md relative">
-                  <span className="p-[6px] bg-yellow-500 rounded hover:shadow-lg hover:shadow-yellow-500/50 absolute right-2 top-2 cursor-pointer">
-                    <FaRegEdit />{' '}
-                  </span>
-                  <div className="flex gap-2">
-                    <span>Shop Name : </span>
-                    <span>{userInfo.shopInfo?.shopName}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <span>Divission : </span>
-                    <span>{userInfo.shopInfo?.division}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <span>District : </span>
-                    <span>{userInfo.shopInfo?.district}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <span>Sub District : </span>
-                    <span>{userInfo.shopInfo?.sub_district}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+      <div className="relative z-10">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Profile Settings</h1>
+          <p className="text-gray-600">Manage your account information and preferences</p>
         </div>
 
-        <div className="w-full md:w-6/12">
-          <div className="w-full pl-0 md:pl-7 mt-6 md:mt-0">
-            <div className="bg-[#6a5fdf] rounded-md text-[#d0d2d6] p-4">
-              <h1 className="text-[#d0d2d6] text-lg mb-3 font-semibold">
-                Change Password
-              </h1>
-              <form>
-                <div className="flex flex-col w-full gap-1 mb-2">
-                  <label htmlFor="email">Email</label>
+        <div className="w-full flex flex-wrap gap-8">
+          {/* Left Column - Profile Info */}
+          <div className="w-full md:w-6/12 lg:flex-1">
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 p-6">
+              {/* Profile Image Section */}
+              <div className="flex justify-center items-center py-6 mb-6 border-b border-gray-200/50">
+                {userInfo?.image ? (
+                  <label
+                    htmlFor="img"
+                    className="h-[150px] w-[200px] relative p-3 cursor-pointer overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 group"
+                  >
+                    <img 
+                      src={userInfo.image} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover rounded-xl"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl flex items-center justify-center">
+                      <span className="text-white text-sm">Change Photo</span>
+                    </div>
+                    {loader && (
+                      <div className="bg-black/70 absolute left-0 top-0 w-full h-full flex justify-center items-center z-20 rounded-xl backdrop-blur-sm">
+                        <FadeLoader color="#ffffff" />
+                      </div>
+                    )}
+                  </label>
+                ) : (
+                  <label
+                    className="flex justify-center items-center flex-col h-[150px] w-[200px] cursor-pointer border-2 border-dashed hover:border-blue-500 border-gray-300 relative rounded-2xl bg-gray-50/50 backdrop-blur-sm hover:bg-gray-100/50 transition-all duration-200"
+                    htmlFor="img"
+                  >
+                    <FaImages className="text-3xl text-gray-400 mb-2" />
+                    <span className="text-gray-600 font-medium">Select Image</span>
+                    {loader && (
+                      <div className="bg-black/70 absolute left-0 top-0 w-full h-full flex justify-center items-center z-20 rounded-2xl backdrop-blur-sm">
+                        <FadeLoader color="#ffffff" />
+                      </div>
+                    )}
+                  </label>
+                )}
+                <input
+                  onChange={add_image}
+                  type="file"
+                  className="hidden"
+                  id="img"
+                />
+              </div>
+
+              {/* User Info Section */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Account Information</h3>
+                <div className="bg-gray-50/50 backdrop-blur-sm rounded-xl p-6 border border-gray-200/50 relative">
+                  <span className="p-2 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-lg hover:shadow-lg hover:shadow-yellow-500/25 absolute right-3 top-3 cursor-pointer transition-all duration-200 transform hover:scale-105">
+                    <FaRegEdit className="text-white" />
+                  </span>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center">
+                      <span className="text-gray-600 font-medium w-20">Name:</span>
+                      <span className="text-gray-800 font-semibold">{userInfo.name}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-gray-600 font-medium w-20">Email:</span>
+                      <span className="text-gray-800">{userInfo.email}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-gray-600 font-medium w-20">Role:</span>
+                      <span className="inline-flex px-3 py-1 rounded-full bg-blue-100/80 text-blue-800 text-sm font-medium border border-blue-200/50 capitalize">
+                        {userInfo.role}
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-gray-600 font-medium w-20">Status:</span>
+                      <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium border ${
+                        userInfo.status === 'active' 
+                          ? 'bg-green-100/80 text-green-800 border-green-200/50' 
+                          : 'bg-yellow-100/80 text-yellow-800 border-yellow-200/50'
+                      }`}>
+                        {userInfo.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-gray-600 font-medium w-20">Payment:</span>
+                      {userInfo.payment === 'active' ? (
+                        <span className="bg-gradient-to-r from-red-500 to-red-600 text-white text-sm cursor-pointer font-medium px-3 py-1 rounded-lg shadow-lg hover:shadow-red-500/25 transition-all">
+                          {userInfo.payment}
+                        </span>
+                      ) : (
+                        <span
+                          onClick={() => dispatch(create_stripe_connect_account())}
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-sm cursor-pointer font-medium px-3 py-1 rounded-lg shadow-lg hover:shadow-blue-500/25 transition-all duration-200 transform hover:scale-105"
+                        >
+                          Click Active
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shop Info Section */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Shop Information</h3>
+                {!userInfo?.shopInfo ? (
+                  <form onSubmit={add} className="space-y-4">
+                    <div className="space-y-2">
+                      <label htmlFor="Shop" className="block text-sm font-medium text-gray-700">Shop Name</label>
+                      <input
+                        value={state.shopName}
+                        onChange={inputHandle}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white/50 backdrop-blur-sm transition-all"
+                        type="text"
+                        name="shopName"
+                        id="Shop"
+                        placeholder="Enter shop name"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="division" className="block text-sm font-medium text-gray-700">Division Name</label>
+                      <input
+                        value={state.division}
+                        onChange={inputHandle}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white/50 backdrop-blur-sm transition-all"
+                        type="text"
+                        name="division"
+                        id="division"
+                        placeholder="Enter division name"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="district" className="block text-sm font-medium text-gray-700">District Name</label>
+                      <input
+                        value={state.district}
+                        onChange={inputHandle}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white/50 backdrop-blur-sm transition-all"
+                        type="text"
+                        name="district"
+                        id="district"
+                        placeholder="Enter district name"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="sub" className="block text-sm font-medium text-gray-700">Sub District Name</label>
+                      <input
+                        value={state.sub_district}
+                        onChange={inputHandle}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white/50 backdrop-blur-sm transition-all"
+                        type="text"
+                        name="sub_district"
+                        id="sub"
+                        placeholder="Enter sub district name"
+                      />
+                    </div>
+
+                    <button
+                      disabled={loader ? true : false}
+                      className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-400 disabled:to-gray-500 w-[200px] text-white rounded-xl px-7 py-3 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-red-500/25 disabled:transform-none"
+                    >
+                      {loader ? (
+                        <PropagateLoader
+                          color="#fff"
+                          cssOverride={overrideStyle}
+                        />
+                      ) : (
+                        'Save Changes'
+                      )}
+                    </button>
+                  </form>
+                ) : (
+                  <div className="bg-gray-50/50 backdrop-blur-sm rounded-xl p-6 border border-gray-200/50 relative">
+                    <span className="p-2 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-lg hover:shadow-lg hover:shadow-yellow-500/25 absolute right-3 top-3 cursor-pointer transition-all duration-200 transform hover:scale-105">
+                      <FaRegEdit className="text-white" />
+                    </span>
+                    
+                    <div className="space-y-4">
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium w-28">Shop Name:</span>
+                        <span className="text-gray-800 font-semibold">{userInfo.shopInfo?.shopName}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium w-28">Division:</span>
+                        <span className="text-gray-800">{userInfo.shopInfo?.division}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium w-28">District:</span>
+                        <span className="text-gray-800">{userInfo.shopInfo?.district}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium w-28">Sub District:</span>
+                        <span className="text-gray-800">{userInfo.shopInfo?.sub_district}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Change Password */}
+          <div className="w-full md:w-6/12 lg:flex-1">
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-6">Change Password</h3>
+              
+              <form className="space-y-6">
+                <div className="space-y-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
                   <input
-                    className="px-4 py-2 focus:border-indigo-200 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white/50 backdrop-blur-sm transition-all"
                     type="email"
                     name="email"
                     id="email"
-                    placeholder="email"
+                    placeholder="Enter your email"
                   />
                 </div>
 
-                <div className="flex flex-col w-full gap-1 mb-2">
-                  <label htmlFor="o_password">Old Password</label>
+                <div className="space-y-2">
+                  <label htmlFor="o_password" className="block text-sm font-medium text-gray-700">Old Password</label>
                   <input
-                    className="px-4 py-2 focus:border-indigo-200 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white/50 backdrop-blur-sm transition-all"
                     type="password"
                     name="old_password"
                     id="o_password"
-                    placeholder="Old Password"
+                    placeholder="Enter old password"
                   />
                 </div>
 
-                <div className="flex flex-col w-full gap-1 mb-2">
-                  <label htmlFor="n_password">New Password</label>
+                <div className="space-y-2">
+                  <label htmlFor="n_password" className="block text-sm font-medium text-gray-700">New Password</label>
                   <input
-                    className="px-4 py-2 focus:border-indigo-200 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white/50 backdrop-blur-sm transition-all"
                     type="password"
                     name="new_password"
                     id="n_password"
-                    placeholder="New Password"
+                    placeholder="Enter new password"
                   />
                 </div>
 
-                <button className="bg-red-500  hover:shadow-red-500/40 hover:shadow-md text-white rounded-md px-7 py-2 my-2">
+                <button className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl px-7 py-3 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-red-500/25">
                   Save Changes
                 </button>
               </form>
+
+              {/* Security Tips */}
+              <div className="mt-8 bg-blue-50/80 backdrop-blur-sm rounded-xl p-4 border border-blue-200/50">
+                <h4 className="text-sm font-semibold text-blue-800 mb-2">Security Tips</h4>
+                <ul className="text-xs text-blue-700 space-y-1">
+                  <li>• Use a strong password with at least 8 characters</li>
+                  <li>• Include uppercase, lowercase, numbers, and symbols</li>
+                  <li>• Don't reuse passwords from other accounts</li>
+                  <li>• Change your password regularly</li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
